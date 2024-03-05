@@ -1,0 +1,380 @@
+<p-toast></p-toast>
+<p-toast key="success"></p-toast>
+<p-toast key="retry">
+  <ng-template let-message pTemplate="message">
+    <div class="flex flex-column" style="flex: 1">
+      <div class="text-center">
+        <i class="pi pi-exclamation-triangle" style="font-size: 3rem"></i>
+        <h4>{{message.summary}}</h4>
+        <p>{{message.detail}}</p>
+      </div>
+      <div class="grid p-fluid">
+        <div class="col-12">
+          <button type="button" icon="pi pi-refresh" (click)="onRetry()" pButton label="Retry"
+            class="p-button-danger"></button>
+        </div>
+      </div>
+    </div>
+  </ng-template>
+</p-toast>
+<div class="mb-3">
+  <p-tabMenu [model]="items" [activeItem]="activeItem" (activeItemChange)="onStatusTabChange($event)"></p-tabMenu>
+</div>
+<p-scrollPanel [style]="{width: '100%', height: '70vh'}">
+  <div class="grid p-fluid">
+    <div class="col-12 sm:col-6 lg:col-6 xl:col-3">
+      <div class="p-link card h-full" (click)="visibleAddSidebar = true"
+        style="border-style: dashed; background: none;">
+        <div class="flex align-items-center justify-content-center h-full">
+          <div class="align-text-center">
+            <div class="text-300 font-bold text-3xl">+</div>
+            <div class="text-300 font-bold text-2xl">Add task</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 sm:col-6 lg:col-6 xl:col-3" *ngFor="let task of currentUserTasks">
+      <div
+        class="card flex flex-column w-full border-1 surface-border px-3 py-4 gap-4 hover:surface-ground cursor-pointer"
+        (click)="populateSelectedTask(task)">
+        <div class="flex justify-content-between align-items-center">
+          <span class="text-900 font-semibold">{{task.taskTitle}}</span>
+          <div class="flex gap-2">
+            <img src="assets/itaap-ms-manager/images/priority/{{getTaskPriorityImg(task.priority)}}.svg"
+              class="h-2rem w-2rem">
+            <span
+              [class]="'align-self-center tasks-badge status-' + getStatusValue(task.status)">{{getStatusValue(task.status)}}</span>
+          </div>
+        </div>
+        <span class="text-700">{{task.taskDesc}}</span>
+        <div class="flex flex-column gap-3">
+          <span class="text-500 text-sm">{{task.microservices.name}}</span>
+          <p-progressBar [style]="{'height': '6px'}" [showValue]="false" [value]="task.progress"></p-progressBar>
+        </div>
+        <div class="flex align-items-center justify-content-between flex-column md:flex-row gap-4 md:gap-0">
+          <p-avatarGroup *ngIf="task.assignees.length != 0">
+            <p-avatar icon="pi pi-user" shape="circle" styleClass="border-2 surface-border"
+              *ngFor="let assignee of task.assignees | slice:0:3"></p-avatar>
+            <p-avatar *ngIf="task.assignees.length > 3" label="+{{task.assignees.length - 3}}" shape="circle"
+              styleClass="border-2 surface-border"></p-avatar>
+          </p-avatarGroup>
+          <div class="flex align-items-center gap-3">
+            <span class="text-900 font-semibold" *ngIf="task.attachments.length != 0">
+              <i class="pi pi-paperclip text-700 mr-2"></i>
+              <span>{{task.attachments.length}}</span>
+            </span>
+            <div class="flex align-items-center gap-3" *ngIf="task.status != 'C'">
+              <span class="text-900 font-semibold" *ngIf="task.taskLists.length != 0">
+                <i class="pi pi-check-square text-700 mr-2"></i>
+                <span>{{task.completedTasks ? task.completedTasks : 0}} / {{task.taskLists.length}}</span>
+              </span>
+              <span class="text-900 font-semibold">
+                <i class="pi pi-clock text-700 mr-2"></i>
+                <span>{{task.dueDate | date: 'MMM dd, yyyy'}}</span>
+              </span>
+            </div>
+            <div class="flex align-items-center gap-3" *ngIf="task.status == 'C'">
+              <span [class]="'block tasks-badge status-completed align-text-center'">
+                <i class="pi pi-check text-green-700 mr-2"></i>
+                <span class="text-green-700">{{task.completedDate | date: 'MMM dd, yyyy'}}</span>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</p-scrollPanel>
+
+
+<p-sidebar [(visible)]="visibleSidebar" position="right" [showCloseIcon]="false" [dismissible]="true"
+  [blockScroll]="true" [baseZIndex]="10000" [style]="{'width':'50vw','overflow':'visible'}">
+  <ng-template pTemplate="content">
+    <div class="flex h-full w-full flex-wrap justify-items-stretch">
+      <div
+        class="px-4 py-6 border-bottom-1 surface-border flex w-full align-items-center justify-content-between h-4rem">
+        <div class="text-900 font-semibold text-lg">{{selectedTask.taskTitle}}</div>
+        <div>
+          <button pButton label="Reject" icon="pi pi-times" class="p-button-danger p-button-outlined p-button-danger"
+            (click)="overlayToggle($event, op2)" *ngIf="enableRejectButton()"></button>
+          <button pButton label="Accept" icon="pi pi-check" class="ml-2" (click)="updateTaskStatus('accepted')"
+            *ngIf="enableAcceptButton(selectedTask.status)"></button>
+          <button pButton label="Discard" icon="pi pi-delete-left" class="p-button-warning ml-2" (click)="onDiscard()"
+            *ngIf="isSaveEnable"></button>
+          <button pButton label="Save" icon="pi pi-save" class="p-button-success ml-2"
+            (click)="updateTaskStatus(modifiedStatus)" *ngIf="isSaveEnable || saveQualified()"></button>
+        </div>
+      </div>
+      <div class="grid grid-nogutter gap-3 pt-5">
+        <div class="col-12 field px-5 flex gap-5">
+          <div class="flex flex-column field w-full">
+            <label class="block text-900 font-semibold">Status</label>
+            <div>
+              <p-inplace (onActivate)="onActivateTaskStatus()"
+                [preventClick]="selectedTask.status == 'C' || selectedTask.status == 'R' || selectedTask.status == 'N'">
+                <ng-template pTemplate="display">
+                  <div [class]="'inline-flex tasks-badge status-' + getStatusValue(selectedTask.status)">
+                    {{getStatusValue(selectedTask.status)}}</div>
+                </ng-template>
+                <ng-template pTemplate="content">
+                  <p-dropdown [options]="allSelectedTaskStatus" [(ngModel)]="modifiedStatus" (onChange)="enableSave()">
+                    <ng-template pTemplate="selectedItem">
+                      <span *ngIf="selectedTask.status">
+                        <span [class]="'tasks-badge status-' + modifiedStatus">{{modifiedStatus}}</span>
+                      </span>
+                    </ng-template>
+                    <ng-template let-status pTemplate="item">
+                      <span>
+                        <span [class]="'tasks-badge status-' + status">{{status}}</span>
+                      </span>
+                    </ng-template>
+                  </p-dropdown>
+                </ng-template>
+              </p-inplace>
+            </div>
+          </div>
+          <div class="flex flex-column w-full">
+            <label class="block text-900 font-semibold mb-2">Created By</label>
+            <p-chip icon="pi pi-user" styleClass="mr-2" label="{{selectedTask.createdBy.name}}"></p-chip>
+          </div>
+          <div class="flex flex-column w-full">
+            <label class="block text-900 font-semibold mb-2">Priority</label>
+            <div class="border-round border-1 p-2 surface-border">
+              <div class="flex gap-2 align-items-center">
+                <img src="assets/itaap-ms-manager/images/priority/{{getTaskPriorityImg(selectedTask.priority)}}.svg"
+                  class="pl-2 h-2rem w-2rem">
+                <span class="block text-900 font-semibold">{{getTaskPriorityName(selectedTask.priority)}}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 field px-5 w-full">
+          <label class="block text-900 font-semibold">Microservice</label>
+          <div class="border-round border-1 p-3 surface-border">{{selectedTask.microservices.name}}</div>
+        </div>
+        <div class="col-12 field px-5">
+          <label class="block text-900 font-semibold">Description</label>
+          <div class="border-round border-1 p-3 surface-border">{{selectedTask.taskDesc}}</div>
+        </div>
+        <div class="col-12 field px-5 flex gap-5">
+          <div class="flex flex-column field w-full">
+            <label class="block text-900 font-semibold">Start Date</label>
+            <div class="border-round border-1 p-3 surface-border">
+              <i class="pi pi-clock text-700 mr-2"></i>
+              <span>{{selectedTask.startDate | date: 'MMM dd, yyyy'}}</span>
+            </div>
+          </div>
+          <div class="flex flex-column field w-full">
+            <label class="block text-900 font-semibold">Target End Date</label>
+            <div class="border-round border-1 p-3 surface-border">
+              <p-inplace pTooltip="Click to edit" [preventClick]="selectedTask.status == 'N'" [closable]="true"
+                tooltipPosition="right" closeIcon="pi pi-check">
+                <ng-template pTemplate="display">
+                  <div class="inline-flex w-full">
+                    <i class="pi pi-clock text-700 mr-2"></i>
+                    <span>{{selectedTask.dueDate | date: 'MMM dd, yyyy'}}</span>
+                  </div>
+                </ng-template>
+                <ng-template pTemplate="content">
+                  <p-calendar dateFormat="M dd, yy" [minDate]="todayDate" [disabledDays]="[0,6]"
+                    [(ngModel)]="selectedTask.dueDate" appendTo="body"></p-calendar>
+                </ng-template>
+              </p-inplace>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 field px-5">
+          <div class="flex flex-column">
+            <div class="flex justify-content-between mb-3">
+              <span class="text-900 font-semibold">Progress</span>
+              <span class="text-900 font-semibold">{{selectedTask.progress}}%</span>
+            </div>
+            <p-progressBar [value]="selectedTask.progress" [showValue]="false"></p-progressBar>
+          </div>
+        </div>
+        <div class="col-12 field  px-5" *ngIf="selectedTask.taskLists.length != 0">
+          <label class="block text-900 font-semibold">Task List</label>
+          <ul class="list-none p-4 flex gap-2 flex-column surface-ground surface-border border-1 border-round">
+            <li class="flex align-items-start" *ngFor="let item of selectedTask.taskLists">
+              <p-checkbox [disabled]="false" name="group" (value)="item.taskDetails" [inputId]="item.taskDetails"
+                class="mr-2" [(ngModel)]="item.isCompleted" [binary]="true"
+                (onChange)="completeTaskListItem(selectedTask)"></p-checkbox>
+              <div class="w-full">
+                <div class="flex justify-content-between">
+                  <label [for]="item.taskDetails"
+                    [ngStyle]="{'text-decoration': item.isCompleted ? 'line-through' : 'none'}">{{item.taskDetails}}</label>
+                </div>
+              </div>
+            </li>
+          </ul>
+        </div>
+        <div class="col-12 flex flex-column field px-5">
+          <label class="block text-900 font-semibold">Assignees</label>
+          <span class="p-fluid">
+            <div class="flex align-items-center">
+              <p-chip icon="pi pi-user" styleClass="mr-2" label="{{assignee.name}}"
+                *ngFor="let assignee of selectedTask.assignees"></p-chip>
+            </div>
+          </span>
+        </div>
+        <div class="col-12 flex flex-column w-full row-gap-4 px-5 mb-6">
+          <span class="block text-900 font-semibold">Comments</span>
+          <div class="flex align-items-center">
+            <p-avatar icon="pi pi-user" styleClass="mr-3" size="large" shape="circle"></p-avatar>
+            <textarea [autoResize]="true" [(ngModel)]="newComment" placeholder="Write a comment..." pInputTextarea
+              (keydown.enter)="onKeydown($event)" (keyup.enter)="addComment($event)" class="w-full"></textarea>
+          </div>
+          <div class="flex align-items-center border-round mb-2" *ngFor="let comment of selectedTask.comments">
+            <p-avatar icon="pi pi-user" styleClass="mr-3" size="large" shape="circle"></p-avatar>
+            <div class="w-full">
+              <div class="flex justify-content-between mb-2">
+                <span class="block text-900">{{comment.givenBy.name}}</span>
+                <span class="block text-700">{{comment.timestamp | date: 'MMM dd, yyyy h:mm:ss a'}}</span>
+              </div>
+              <span
+                class="block text-900 border-1 surface-border surface-ground p-2 border-round">{{comment.comments}}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-template>
+</p-sidebar>
+
+<p-sidebar [(visible)]="visibleAddSidebar" position="right" [showCloseIcon]="false" [dismissible]="true"
+  [blockScroll]="true" [baseZIndex]="10000" [style]="{'width':'40vw','overflow':'visible'}">
+  <ng-template pTemplate="content">
+    <div class="flex h-full w-full flex-wrap justify-items-stretch">
+      <div class="px-4 py-6 border-bottom-1 surface-border flex w-full align-items-center h-4rem">
+        <p-inplace [closable]="true" pTooltip="Click to edit" tooltipPosition="right" closeIcon="pi pi-check">
+          <ng-template pTemplate="display">
+            <div class="inline-flex text-900 font-semibold text-lg">{{createdTask.taskTitle}}</div>
+          </ng-template>
+          <ng-template pTemplate="content">
+            <input type="text" pInputText [(ngModel)]="createdTask.taskTitle">
+          </ng-template>
+        </p-inplace>
+        <small class="p-error" *ngIf="isSubmitted && createdTask.taskTitle === 'Untitled task'">Change the task
+          name</small>
+        <!-- <div>
+        <button pButton pRipple type="button" icon="pi pi-times" class="p-button-rounded p-button-text"></button>
+      </div> -->
+      </div>
+      <div class="grid grid-nogutter p-fluid gap-5 pt-5">
+        <div class="col-12 field px-5">
+          <div class="flex gap-5 align-items-center">
+            <!-- <label class="block text-900 font-semibold">Priority</label> -->
+            <div class="w-full">
+              <p-selectButton [options]="priorityOptions" [(ngModel)]="createdTask.priority" optionLabel="type"
+                optionValue="code">
+                <ng-template let-item>
+                  <div class="flex gap-1 align-items-center justify-content-center w-full">
+                    <img src="assets/itaap-ms-manager/images/priority/{{item.type.toLowerCase()}}.svg"
+                      class="h-2rem w-2rem">
+                    <span class="block text-900 font-semibold">{{item.type}}</span>
+                  </div>
+                </ng-template>
+              </p-selectButton>
+            </div>
+          </div>
+          <small class="p-error" *ngIf="isSubmitted && createdTask.priority === undefined">Select severity of the
+            task</small>
+        </div>
+        <div class="col-12 field px-5">
+          <label class="block text-900 font-semibold">Microservice</label>
+          <p-dropdown id="msDropdown" [options]="allMicroservices" placeholder="Select Microservice" optionLabel="name"
+            [(ngModel)]="selectedMicroservice"></p-dropdown>
+        </div>
+        <div class="col-12 field px-5">
+          <label class="block text-900 font-semibold">Description</label>
+          <textarea [autoResize]="true" rows="5" cols="30" pInputTextarea [(ngModel)]="createdTask.taskDesc"></textarea>
+          <small class="p-error" *ngIf="isSubmitted && createdTask.taskDesc === undefined">Add description</small>
+        </div>
+        <div class="col-12 px-5 flex gap-5">
+          <div class="flex flex-column field w-full">
+            <label class="block text-900 font-semibold">Start Date</label>
+            <p-calendar [showIcon]="true" dateFormat="M dd, yy" [disabledDays]="[0,6]"
+              [(ngModel)]="createdTask.startDate" [minDate]="todayDate" appendTo="body"></p-calendar>
+            <small class="p-error" *ngIf="isSubmitted && createdTask.startDate === undefined">Select start date</small>
+          </div>
+          <div class="flex flex-column field w-full">
+            <label class="block text-900 font-semibold">Target End Date</label>
+            <p-calendar [showIcon]="true" dateFormat="M dd, yy" [disabledDays]="[0,6]"
+              [disabled]="createdTask.startDate == undefined" [(ngModel)]="createdTask.dueDate"
+              [(ngModel)]="createdTask.dueDate" [minDate]="createdTask.startDate" appendTo="body"></p-calendar>
+            <small class="p-error" *ngIf="isSubmitted && createdTask.dueDate === undefined">Select target date</small>
+          </div>
+        </div>
+        <div class="col-12 field px-5">
+          <label class="block text-900 font-semibold">Task List</label>
+          <textarea [autoResize]="true" placeholder="Add a task" pInputTextarea [(ngModel)]="newItemTaskListDetails"
+            (keydown.enter)="onKeydown($event)" (keyup.enter)="addTaskList($event)"></textarea>
+          <small class="p-error" *ngIf="isSubmitted && createdTask.taskLists.length == 0">Add atleast one
+            subtask</small>
+          <ul class="list-none p-4 flex gap-2 flex-column surface-ground surface-border border-1 border-round"
+            *ngIf="createdTask.taskLists.length != 0">
+            <li class="flex align-items-start" *ngFor="let item of createdTask.taskLists">
+              <p-checkbox [disabled]="true" name="group" (value)="item.taskDetails" inputId="ch" class="mr-2"
+                [(ngModel)]="item.isCompleted" [binary]="true"></p-checkbox>
+              <div class="w-full">
+                <div class="flex justify-content-between">
+                  <label for="ch"
+                    [ngStyle]="{'text-decoration': item.isCompleted ? 'line-through' : 'none'}">{{item.taskDetails}}</label>
+                  <div *ngIf="true">
+                    <!-- <i class="pi pi-trash p-link" (click)="deleteTaskList(item)"></i> -->
+                    <button pButton pRipple type="button" icon="pi pi-trash"
+                      class="p-button-rounded p-button-danger p-button-text p-button-sm"
+                      (click)="deleteTaskList(item)"></button>
+                    <p-confirmPopup key="confirm_selected_variables"></p-confirmPopup>
+                  </div>
+                </div>
+              </div>
+            </li>
+          </ul>
+        </div>
+        <div class="col-12 flex flex-column field px-5">
+          <label class="block text-900 font-semibold">Assignees</label>
+          <span class="p-fluid">
+            <p-autoComplete field="name" [(ngModel)]="createdTask.assignees" [suggestions]="filteredAssignees"
+              [multiple]="true" (completeMethod)="filterAssignees($event)" placeholder="Choose assignees"
+              [styleClass]="'h-4rem'">
+              <ng-template let-assignee pTemplate="selectedItem">
+                <div class="flex align-items-center gap-3 border-round">
+                  <p-avatar icon="pi pi-user" styleClass="mr-2" shape="circle"></p-avatar>
+                  <span>{{assignee.name}}</span>
+                </div>
+              </ng-template>
+            </p-autoComplete>
+          </span>
+          <small class="p-error" *ngIf="isSubmitted && createdTask.assignees.length == 0">Choose atleast one assignee
+            for the task</small>
+        </div>
+      </div>
+      <div class="flex w-full justify-content-end border-top-1 surface-border py-5 px-5 gap-3">
+        <button pButton pRipple icon="pi pi-paperclip" type="button"
+          class="surface-border p-button-outlined p-button-secondary text-900 w-3rem h-3rem"></button>
+        <button pButton pRipple icon="pi pi-save" label="Create" type="button" (click)="createTask()"
+          class="p-button-success text-black-900 h-3rem"></button>
+      </div>
+    </div>
+  </ng-template>
+</p-sidebar>
+
+<p-overlayPanel #op2>
+  <ng-template pTemplate>
+    <div class="grid -fluid">
+      <div class="col-12">
+        <div class="field">
+          <label htmlFor="taskDesc">Rejection Reason</label>
+          <textarea [autoResize]="true" [(ngModel)]="selectedTask.rejectionReason" rows="5" cols="30"
+            placeholder="Reason" pInputTextarea (keypress)="addComment($event)" class="w-full"></textarea>
+          <small class="p-error" *ngIf="submitted && !selectedTask.rejectionReason">Reason for rejection is
+            required.</small>
+        </div>
+      </div>
+    </div>
+    <div style="text-align: right">
+      <button type="button" icon="pi pi-save" pButton label="Save" (click)="updateTaskStatus('rejected')"></button>
+    </div>
+  </ng-template>
+</p-overlayPanel>

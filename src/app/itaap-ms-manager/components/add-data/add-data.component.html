@@ -1,0 +1,131 @@
+<p-toast></p-toast>
+<div class="card">
+  <span class="text-900 text-xl font-bold mb-4 block">Create User</span>
+  <div class="grid">
+    <div class="col-12 lg:col-2">
+      <div class="text-900 font-medium text-xl mb-3">Profile</div>
+      <p class="m-0 p-0 text-600 line-height-3 mr-3">Odio euismod lacinia at quis risus sed vulputate odio.</p>
+    </div>
+    <div class="col-12 lg:col-10">
+      <div class="grid formgrid p-fluid">
+        <div class="field mb-4 col-12">
+          <label for="nickname" class="font-medium text-900">Name</label>
+          <input id="nickname" type="text" pinputtext="" class="p-inputtext p-component p-element">
+        </div>
+        <div class="field mb-4 col-12">
+          <label for="avatar" class="font-medium text-900">Avatar</label>
+          <p-fileUpload mode="basic" name="avatar" url="./upload.php" accept="image/*"
+            styleclass="p-button-outlined p-button-plain" chooselabel="Upload Image" class="p-element">
+
+          </p-fileUpload>
+        </div>
+        <div class="field mb-4 col-12 md:col-6">
+          <label for="email" class="font-medium text-900">Email</label>
+          <input id="email" type="text" pinputtext="" class="p-inputtext p-component p-element">
+        </div>
+        <div class="field mb-4 col-12 md:col-6">
+          <label for="country" class="font-medium text-900">Country</label>
+          <p-dropdown inputid="country" optionlabel="name" filterby="name" placeholder="Select a Country"
+            class="p-element p-inputwrapper">
+            <div class="p-dropdown p-component p-dropdown-clearable">
+              
+            </div>
+          </p-dropdown>
+        </div>
+        <div class="col-12">
+          <button pbutton="" pripple="" label="Create User" class="p-element p-ripple w-auto mt-3 p-button p-component">
+            <span class="p-button-label">Create
+              User</span>
+            <span class="p-ink">
+
+            </span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- <div class="grid">
+  <div class="col-12 xl:col-6">
+    <p-card header="Add Microservice">
+      <ng-template pTemplate="content">
+        <div class="card p-fluid">
+          <div class="field">
+            <input pInputText id="msname" type="text" placeholder="Microservice Name" [(ngModel)]="newMicroservice.name" />
+            <small class="p-error" *ngIf="mssubmitted && !newMicroservice.name">Microservice name is required.</small>
+          </div>
+          <div class="p-formgrid grid mt-2">
+            <div class="field col">
+              <p-dropdown id="name2" [options]="allTechLeads" optionLabel="name" type="text" placeholder="Tech Lead" [(ngModel)]="techLead"></p-dropdown>
+              <small class="p-error" *ngIf="mssubmitted && !techLead">Tech Lead is required.</small>
+            </div>
+            <div class="field col">
+              <p-dropdown id="email2" [options]="allScrumMasters" optionLabel="name" type="text" placeholder="Scrum Master" [(ngModel)]="scrumMaster"></p-dropdown>
+              <small class="p-error" *ngIf="mssubmitted && !scrumMaster">Scrum Master is required.</small>
+            </div>
+          </div>
+          <div class="p-formgrid grid">
+            <div class="field col">
+              <p-dropdown id="name2" [options]="allDevelopers" optionLabel="name" type="text" placeholder="Developer" [(ngModel)]="developer"></p-dropdown>
+              <small class="p-error" *ngIf="mssubmitted && !developer">Developer is required.</small>
+            </div>
+            <div class="field col">
+              <p-dropdown id="email2" [options]="allDevelopers" optionLabel="name" type="text" placeholder="Backup Resource" [(ngModel)]="backup"></p-dropdown>
+              <small class="p-error" *ngIf="mssubmitted && !backup">Backup Resource is required.</small>
+              <small class="p-error" *ngIf="mssubmitted && backup.id == developer.id">Backup Resource cannot be same as developer.</small>
+            </div>
+          </div>
+          <div class="p-formgrid grid">
+            <div class="field col">
+              <p-dropdown id="name2" [options]="allClients" optionLabel="name" type="text" placeholder="Point of Contact" [(ngModel)]="poc"></p-dropdown>
+              <small class="p-error" *ngIf="mssubmitted && !poc">Point of Contact is required.</small>
+            </div>
+            <div class="field col">
+              <p-calendar [minDate]="todayDate" dateFormat="M dd, yy" placeholder="Delivery Date" inputId="dateformat" [showIcon]="true" [(ngModel)]="targetDate"></p-calendar>
+              <small class="p-error" *ngIf="mssubmitted && !targetDate">Delivery Date is required.</small>
+            </div>
+          </div>
+        </div>
+      </ng-template>
+      <ng-template pTemplate="footer">
+        <div class="p-fluid grid">
+          <p-button label="Save" icon="pi pi-save" class="col-12 xl:col-2 ml-auto" (click)="saveMicroservice()"></p-button>
+        </div>
+      </ng-template>
+    </p-card>
+  </div>
+  <div class="col-12 xl:col-6">
+    <p-card header="Add User">
+      <ng-template pTemplate="content">
+        <div class="card p-fluid">
+          <div class="field p-fluid grid">
+            <label htmlFor="username" class="col-12 mb-2 md:col-2 md:mb-0">Name</label>
+            <div class="col-12 md:col-10">
+              <input pInputText id="username" type="text" placeholder="Name" [(ngModel)]="newUser.name" />
+              <small class="p-error" *ngIf="usersubmitted && !newUser.name">Username is required.</small>
+            </div>
+          </div>
+          <div class="field p-fluid grid">
+            <label htmlFor="email" class="col-12 mb-2 md:col-2 md:mb-0">Email</label>
+            <div class="col-12 md:col-10">
+              <input pInputText id="email" type="text" placeholder="Email" [(ngModel)]="newUser.email" />
+              <small class="p-error" *ngIf="usersubmitted && !newUser.email">Email name is required.</small>
+            </div>
+          </div>
+          <div class="field p-fluid grid">
+            <label htmlFor="role" class="col-12 mb-2 md:col-2 md:mb-0">Role</label>
+            <div class="col-12 xl:col-10">
+              <p-dropdown [options]="allRoles" id="role" [showClear]="true" [(ngModel)]="selRole"></p-dropdown>
+              <small class="p-error" *ngIf="usersubmitted && !selRole">Role is required.</small>
+            </div>
+          </div>
+          </div>
+      </ng-template>
+      <ng-template pTemplate="footer">
+        <div class="p-fluid grid">
+          <p-button label="Save" icon="pi pi-save" class="col-12 xl:col-2 ml-auto" (click)="saveUser()"></p-button>
+        </div>
+      </ng-template>
+    </p-card>
+  </div>
+</div> -->

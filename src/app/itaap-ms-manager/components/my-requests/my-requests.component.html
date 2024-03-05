@@ -1,0 +1,64 @@
+<p-toast></p-toast>
+<p-toast key="success"></p-toast>
+<p-toast key="retry">
+ <ng-template let-message pTemplate="message">
+   <div class="flex flex-column" style="flex: 1">
+     <div class="text-center">
+       <i class="pi pi-exclamation-triangle" style="font-size: 3rem"></i>
+       <h4>{{message.summary}}</h4>
+       <p>{{message.detail}}</p>
+     </div>
+     <div class="grid p-fluid">
+       <div class="col-12">
+         <button type="button" icon="pi pi-refresh" (click)="onRetry()" pButton label="Retry"
+                 class="p-button-danger"></button>
+       </div>
+     </div>
+   </div>
+ </ng-template>
+</p-toast>
+
+<div class="text-900 font-medium text-2xl textOverflow">My Requests</div><br><br>
+
+<div *ngFor="let request of allRequests">
+   <p-card [style]="{width: '1510px'}" styleClass="p-card-shadow">
+    <p-tag value={{request.status}} [severity]="getSeverity(request)" [icon]="getSeverityIcon(request)"></p-tag><br><br>
+    <p>{{request.azureGroupName}}</p>
+     <div>
+       <p-table #dt [value]="request.modifiedVariables" [rowHover]="true" [scrollable]="true"
+                          scrollHeight="45vh" styleClass="p-datatable-sm"
+                          [tableStyle]="{'table-layout': 'fixed','min-width': '75rem'}"
+                          [globalFilterFields]="['key']">
+       <ng-template pTemplate="header">
+           <tr>
+             <th style="width: 40%">Name <p-columnFilter type="text" field="key" display="menu"></p-columnFilter></th>
+             <th style="width: 70%">Value</th>
+             <th style="width: 20%">Secret</th>
+           </tr>
+         </ng-template>
+       
+         <ng-template pTemplate="body" let-variable>
+           <tr>
+             <td class="textOverflow">{{variable.key}}</td>
+             <td #variableValue class="textOverflow">{{variable.value}}</td>
+             <td><p-checkbox [binary]="true" [ngModel]="fetchValues(variable, 'secret')" [disabled]="true"></p-checkbox></td>
+           </tr>
+         </ng-template>
+         
+       </p-table>
+
+       <ng-template pTemplate="footer">
+        <div class="flex">
+          <div class = "ml-auto"> <p>{{request.requestDate}}</p></div>
+        </div>
+      </ng-template>
+
+       </div>
+      
+
+   </p-card>
+   <br>
+</div>
+<div>
+ <span class="block text-500 font-medium text-xl mb-3">{{allRequests.length === 0 ? 'No Requests Found.' : ''}}</span>
+</div>

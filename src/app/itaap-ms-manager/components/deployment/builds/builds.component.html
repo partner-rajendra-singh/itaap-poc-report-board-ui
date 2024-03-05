@@ -1,0 +1,196 @@
+<div class="grid">
+  <p-toast></p-toast>
+  <div class="col-12 lg:col-6 xl:col-3">
+    <p-tree filterMode="lenient" [(selection)]="selectedNode" (onNodeSelect)="nodeSelect($event)" selectionMode="single"
+      [filter]="true" [value]="files"
+      [style]="{'font-size': '14px','height':'calc(100vh - 10rem)', 'overflow':'auto'}"></p-tree>
+  </div>
+
+  <div class="col-12 lg:col-6 xl:col-9">
+    <p-breadcrumb [model]="items" [home]="home" styleClass="mb-3"></p-breadcrumb>
+
+    <div class="col-md-12">
+
+      <p-card [header]="selectedPipeline" styleClass="mb-3">
+        <div class="flex justify-content-between align-items-center">
+          <div class="container-fluid">
+            <p-tag icon="pi pi-hashtag" pTooltip="Pipeline ID" tooltipPosition="bottom" styleClass="mr-2 mb-2"
+              value={{selectedPipelineDetails.id}} severity="info"></p-tag>
+            <p-tag icon="pi pi-link" pTooltip="Connection ID" tooltipPosition="bottom" styleClass="mr-2 mb-2"
+              value={{selectedPipelineDetails.configuration.repository.connection.id}} severity="warning"></p-tag>
+            <a href={{selectedPipelineDetails.configuration.repository.connection.url}} style="text-decoration: none"
+              target="_blank"><p-tag icon="pi pi-github" pTooltip="GitHub Repository" tooltipPosition="bottom"
+                styleClass="mr-2 mb-2" value={{selectedPipelineDetails.configuration.repository.fullName}}
+                severity="success"></p-tag></a>
+            <a href={{selectedPipelineDetails._links.web.href}} style="text-decoration: none" target="_blank"><p-tag
+                icon="pi pi-external-link" pTooltip="GitHub Repository" tooltipPosition="bottom" value="Go to Pipeline"
+                severity="danger"></p-tag></a>
+          </div>
+          <div class="align-items-center"
+            *ngIf="runs.length > 0 && selectedPipelineDetails.configuration.path.includes('-CD')">
+            <button type="button" icon="pi pi-refresh" (click)="overlayToggle($event, op)" pButton class="p-button-sm"
+              label="Update Record"></button>
+          </div>
+        </div>
+      </p-card>
+    </div>
+    <p-accordion (onClose)="onTabClose($event)" (onOpen)="onTabOpen($event)"
+      [style]="{'font-size': '14px','height':'60vh', 'overflow':'auto'}">
+      <p-accordionTab [header]="stage.name" *ngFor="let stage of runs">
+        <div class="grid p-fluid">
+          <div class="col-6">
+            <div class="flex justify-content-between">
+              <p-timeline [value]="selectedRunTimeline">
+                <ng-template pTemplate="marker" let-timeline>
+                  <span class="custom-marker shadow-2" [style.backgroundColor]="timeline.color">
+                    <i [ngClass]="timeline.icon" pTooltip={{timeline.result}} tooltipPosition="bottom"></i>
+                  </span>
+                </ng-template>
+                <ng-template pTemplate="content" let-timeline>
+                  <span style="font-size: small">{{timeline.name}}</span>
+                </ng-template>
+                <ng-template pTemplate="opposite" let-timeline>
+                  <p-tag value={{timeline.identifier}}></p-tag>
+                </ng-template>
+              </p-timeline>
+              <p-divider layout="vertical"></p-divider>
+            </div>
+          </div>
+          <div class="col-6 card p-5" style="border-style: dashed; align-self: center;">
+            <div class="grid">
+              <div class="col">
+                <div style="text-align-last: center;" class="mb-5">
+                  <span class="text-2xl font-semibold">Generate Documents</span>
+                </div>
+
+                <div class="flex justify-content-between">
+                  <button pButton label="IQ" class="mb-2 mr-2" (click)="generateDocument('IQ')"></button>
+                  <button pButton label="IQ Verify" class="mb-2" (click)="generateDocument('IQ_verify')"></button>
+                </div>
+                <div class="flex justify-content-between">
+                  <button pButton label="PIQ" class="mb-2 mr-2" (click)="generateDocument('PIQ')"></button>
+                  <button pButton label="PIQ verify" class="mb-2" (click)="generateDocument('PIQ_verify')"></button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </p-accordionTab>
+    </p-accordion>
+  </div>
+</div>
+
+<p-overlayPanel #op [showCloseIcon]="true" [style]="{width: '40rem'}">
+  <ng-template pTemplate>
+    <p-progressBar mode="indeterminate" [style]="{'height': '6px'}" *ngIf="visibleProgressBar"></p-progressBar>
+    <h5>Microservice Details</h5>
+    <div class="mt-2 grid p-fluid formgrid">
+      <div class="col-12 field">
+        <label htmlFor="msname">Microservice Name</label>
+        <p-inplace id="msname" [closable]="true" closeIcon="pi pi-check" pTooltip="Click to edit" tooltipPosition="top"
+          [active]="fetchedMicroservice.name == null">
+          <ng-template pTemplate="display">
+            {{fetchedMicroservice.name}}
+          </ng-template>
+          <ng-template pTemplate="content">
+            <input pInputText type="text" placeholder="Microservice Name" [(ngModel)]="fetchedMicroservice.name" />
+          </ng-template>
+        </p-inplace>
+      </div>
+      <div class="col-12 md:col-6 field">
+        <label htmlFor="techlead">Tech Lead</label>
+        <p-inplace id="techlead" closeIcon="pi pi-check" pTooltip="Click to edit" tooltipPosition="top"
+          [active]="fetchedMicroservice.techLead == null">
+          <ng-template pTemplate="display">
+            <span>{{fetchedMicroservice.techLead.name}}</span>
+          </ng-template>
+          <ng-template pTemplate="content">
+            <p-dropdown [options]="allTechLeads" optionLabel="name" type="text" placeholder="Tech Lead"
+              [(ngModel)]="fetchedMicroservice.techLead"></p-dropdown>
+          </ng-template>
+        </p-inplace>
+      </div>
+      <div class="col-12 md:col-6 field">
+        <label htmlFor="scrum">Scrum Master</label>
+        <p-inplace id="scrum" closeIcon="pi pi-check" pTooltip="Click to edit" tooltipPosition="top"
+          [active]="fetchedMicroservice.scrumMaster == null">
+          <ng-template pTemplate="display">
+            <span>{{fetchedMicroservice.scrumMaster.name}}</span>
+          </ng-template>
+          <ng-template pTemplate="content">
+            <p-dropdown [options]="allScrumMasters" optionLabel="name" type="text" placeholder="Scrum Master"
+              [(ngModel)]="fetchedMicroservice.scrumMaster"></p-dropdown>
+          </ng-template>
+        </p-inplace>
+      </div>
+      <div class="col-12 md:col-6 field">
+        <label htmlFor="dev">Primary Developer</label>
+        <p-inplace id="dev" closeIcon="pi pi-check" pTooltip="Click to edit" tooltipPosition="top"
+          [active]="fetchedMicroservice.developer == null">
+          <ng-template pTemplate="display">
+            <span>{{fetchedMicroservice.developer.name}}</span>
+          </ng-template>
+          <ng-template pTemplate="content">
+            <p-dropdown [options]="allDevelopers" optionLabel="name" type="text" placeholder="Primary Developer"
+              [(ngModel)]="fetchedMicroservice.developer"></p-dropdown>
+          </ng-template>
+        </p-inplace>
+      </div>
+      <div class="col-12 md:col-6 field">
+        <label htmlFor="backup">Backup Resource</label>
+        <p-inplace id="backup" closeIcon="pi pi-check" pTooltip="Click to edit" tooltipPosition="top"
+          [active]="fetchedMicroservice.backup == null">
+          <ng-template pTemplate="display">
+            <span>{{fetchedMicroservice.backup.name}}</span>
+          </ng-template>
+          <ng-template pTemplate="content">
+            <p-dropdown [options]="allDevelopers" optionLabel="name" type="text" placeholder="Backup Resource"
+              [(ngModel)]="fetchedMicroservice.backup"></p-dropdown>
+          </ng-template>
+        </p-inplace>
+      </div>
+      <div class="col-12 md:col-6 field">
+        <label htmlFor="poc">Point of Contact (Philips)</label>
+        <p-inplace id="poc" closeIcon="pi pi-check" pTooltip="Click to edit" tooltipPosition="top"
+          [active]="fetchedMicroservice.poc == null">
+          <ng-template pTemplate="display">
+            <span>{{fetchedMicroservice.poc.name}}</span>
+          </ng-template>
+          <ng-template pTemplate="content">
+            <p-dropdown [options]="allClients" optionLabel="name" type="text" placeholder="Point of Contact"
+              [(ngModel)]="fetchedMicroservice.poc"></p-dropdown>
+          </ng-template>
+        </p-inplace>
+      </div>
+      <div class="col-12 md:col-6 field">
+        <label htmlFor="targetDate">Target Date</label>
+        <p-inplace id="targetDate" closeIcon="pi pi-check" pTooltip="Click to edit" tooltipPosition="top"
+          [active]="fetchedMicroservice.targetCompletionDate == null">
+          <ng-template pTemplate="display">
+            <span>{{getConvertedDate(fetchedMicroservice.targetCompletionDate)}}</span>
+          </ng-template>
+          <ng-template pTemplate="content">
+            <p-calendar [minDate]="todayDate" dateFormat="M dd, yy" placeholder="Target Date" inputId="dateformat"
+              [showIcon]="true" [(ngModel)]="fetchedMicroservice.targetCompletionDate"></p-calendar>
+          </ng-template>
+        </p-inplace>
+      </div>
+    </div>
+    <div style="text-align: right;">
+      <button type="button" icon="pi pi-save" pButton [label]="saveButtonText" class="p-button-success"
+        (click)="insertMsDB($event, op)"></button>
+    </div>
+  </ng-template>
+
+</p-overlayPanel>
+<!--<section id="timeline">
+  <div class="tl-item">
+    <div class="tl-year">
+      <p>2011</p>
+    </div>
+    <div class="tl-content">
+      <h1>Lorem ipsum dolor sit</h1>
+      <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit.</p>
+    </div>
+  </div>
+</section>-->

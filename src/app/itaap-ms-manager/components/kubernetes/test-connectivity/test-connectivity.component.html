@@ -1,0 +1,48 @@
+<div class="grid">
+    <div class="col-12 lg:col-12 xl:col-6">
+        <div class="grid">
+            <div class="col-12">
+                <div class="card">
+                    <h5>Connectivity Check</h5>
+                    <div class="p-inputgroup">
+                        <span class="p-inputgroup-addon"><span
+                                class="material-symbols-outlined">device_hub</span></span>
+                        <input placeholder="Host" type="text" pInputText [(ngModel)]="host" />
+                        <span class="p-inputgroup-addon"><span
+                                class="font-bold text-xl align-text-center">:</span></span>
+                        <p-inputNumber placeholder="Port" [(ngModel)]="port" mode="decimal" [allowEmpty]="true"
+                            [max]="65535" inputId="withoutgrouping" [useGrouping]="false">
+                        </p-inputNumber>
+                        <button pButton type="button" (click)="testConnection()" icon="pi pi-check"></button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12">
+                <app-connectivity-history (selectedRow)="populateResults($event)"></app-connectivity-history>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 lg:col-12 xl:col-6">
+        <div class="card">
+            <p-progressBar mode="indeterminate" [style]="{'height': '6px'}" *ngIf="visibleProgressBar"></p-progressBar>
+            <h5>Results</h5>
+            <p-divider></p-divider>
+            <p-scrollPanel [style]="{'height':'calc(100vh - 20rem)','min-height':'200px'}">
+                <div class="grid p-fluid mb-3" *ngFor="let result of connectionResult">
+                    <div class="col-12 flex justify-content-between">
+                        <span class="text-900 font-semibold text-lg">{{result.type}}</span>
+                        <span [class]="'connect-badge status-' + result.status">{{result.status}}</span>
+                    </div>
+                    <div class="col-12 pt-0 pb-0">
+                        <textarea pInputTextarea [autoResize]="true" [disabled]="true"
+                            style="background: none; border-style: dashed;">{{result.response}}</textarea>
+                    </div>
+                </div>
+            </p-scrollPanel>
+        </div>
+    </div>
+</div>
+
+<p-dialog position="center" [(visible)]="isError" header="Error">
+    Please provide valid details
+</p-dialog>

@@ -1,0 +1,99 @@
+/* You can add global styles to this file, and also import other style files */
+
+$gutter: 1rem; //for primeflex grid system
+@import "assets/layout/styles/layout/layout.scss";
+
+/* PrimeNG */
+@import "node_modules/primeng/resources/primeng.min.css";
+@import "node_modules/primeflex/primeflex.scss";
+@import "node_modules/primeicons/primeicons.css";
+
+/* Demos */
+@import "assets/itaap-ms-manager/styles/flags/flags.css";
+@import "assets/itaap-ms-manager/styles/badges.scss";
+@import "assets/itaap-ms-manager/styles/status.scss";
+
+// @import url('https://fonts.googleapis.com/css?family=Poppins');
+
+// html * {
+//   font-family: Poppins !important;
+// }
+
+.custom-marker {
+  display: flex;
+  width: 1.5rem;
+  height: 1.5rem;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  border-radius: 50%;
+  z-index: 1;
+}
+
+.bolt {
+  display: flex;
+  width: 2rem;
+  height: 2rem;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  border-radius: 50%;
+  z-index: 1;
+}
+
+.bolt-status {
+  &.succeeded {
+    background-color: rgba(85, 163, 98, 1)
+  }
+
+  &.failed {
+    background-color: rgba(205, 74, 69, 1)
+  }
+}
+
+.textOverflow {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap
+}
+
+.align-text-center {
+  text-align: center;
+}
+
+img {
+  max-width: 100%;
+  max-height: 100%;
+}
+
+.card {
+  box-shadow: 0 3px 4px #0000001a, 0 24px 36px #0000000a;
+}
+
+.task-card {
+  background: var(--surface-card);
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: var(--card-shadow);
+  border-radius: 5px;
+  box-shadow: 0 3px 4px #0000001a, 0 24px 36px #0000000a
+}
+
+.task-card:hover {
+  background-color: var(--surface-ground) !important;
+}
+
+.p-sidebar .p-sidebar-header {
+  padding: 0;
+}
+
+.p-sidebar .p-sidebar-content{
+  padding: 0;
+}
+
+.p-fileupload-buttonbar {
+  justify-content: space-between;
+  display: flex;
+  align-items: center;
+  text-align: center;
+}
