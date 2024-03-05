@@ -1,0 +1,76 @@
+<div class="grid p-fluid">
+  <div class="col-6">
+    <p-autoComplete [(ngModel)]="firstGroup" [suggestions]="filteredFirstGroup"
+      (completeMethod)="filterGroups($event, 1)" field="name" [dropdown]="true" [showEmptyMessage]="true"
+      (onSelect)="onSelectGrp(1)"></p-autoComplete>
+  </div>
+  <div class="col-6">
+    <p-autoComplete [(ngModel)]="secondGroup" [suggestions]="filteredSecondGroup"
+      (completeMethod)="filterGroups($event, 2)" field="name" [dropdown]="true" [showEmptyMessage]="true"
+      (onSelect)="onSelectGrp(2)"></p-autoComplete>
+  </div>
+  <div class="col-12">
+    <p-scrollPanel [style]="{'height': '80vh'}">
+
+      <p-splitter styleClass="mb-5">
+        <ng-template pTemplate>
+          <div class="col flex">
+            <p-table [value]="firstVariables" [resizableColumns]="true" [rowHover]="true" [scrollable]="true"
+              styleClass="p-datatable-sm" [tableStyle]="{'table-layout': 'fixed'}" [globalFilterFields]="['key']">
+              <ng-template pTemplate="header">
+                <tr>
+                  <th style="width: 90%" pResizableColumn>Value</th>
+                  <th style="width: 40%" pResizableColumn>Name <p-columnFilter type="text" field="key"
+                      display="menu"></p-columnFilter>
+                  </th>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="body" let-variable>
+                <tr>
+                  <td #variableValue class="textOverflow">{{variable.value}}</td>
+                  <td class="textOverflow">
+                    {{variable.key}}
+                  </td>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="emptymessage">
+                <tr>
+                  <td colspan="2">No variables found.</td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </div>
+        </ng-template>
+        <ng-template pTemplate>
+          <div class="col flex">
+            <p-table #dt [value]="secondVariables" [resizableColumns]="true" [rowHover]="true" [scrollable]="true"
+              styleClass="p-datatable-sm" [tableStyle]="{'table-layout': 'fixed'}" [globalFilterFields]="['key']">
+              <ng-template pTemplate="header">
+                <tr>
+                  <th style="width: 40%" pResizableColumn>Name <p-columnFilter type="text" field="key"
+                      display="menu"></p-columnFilter>
+                  </th>
+                  <th style="width: 90%" pResizableColumn>Value</th>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="body" let-variable>
+                <tr>
+                  <td class="textOverflow">
+                    {{variable.key}}
+                  </td>
+                  <td #variableValue class="textOverflow">{{variable.value}}</td>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="emptymessage">
+                <tr>
+                  <td colspan="2">No variables found.</td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </div>
+        </ng-template>
+      </p-splitter>
+
+    </p-scrollPanel>
+  </div>
+</div>

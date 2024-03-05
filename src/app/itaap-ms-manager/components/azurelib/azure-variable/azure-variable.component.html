@@ -1,0 +1,231 @@
+<div class="grid">
+
+  <p-toast></p-toast>
+  <p-toast key="success"></p-toast>
+  <p-toast key="retry">
+    <ng-template let-message pTemplate="message">
+      <div class="flex flex-column" style="flex: 1">
+        <div class="text-center">
+          <i class="pi pi-exclamation-triangle" style="font-size: 3rem"></i>
+          <h4>{{message.summary}}</h4>
+          <p>{{message.detail}}</p>
+        </div>
+        <div class="grid p-fluid">
+          <div class="col-12">
+            <button type="button" icon="pi pi-refresh" (click)="onRetry()" pButton label="Retry"
+                    class="p-button-danger"></button>
+          </div>
+        </div>
+      </div>
+    </ng-template>
+  </p-toast>
+
+  <!-- LISTBOX -->
+  <div class="col-12 lg:col-4 xl:col-3">
+
+    <p-listbox (click)="onSelectGrp()" [options]="allVariableGrpsList" [(ngModel)]="selectedGrpName"
+               optionLabel="name" optionValue="name" [listStyle]="{'max-height':'calc(100vh - 20rem)', 'font-size': '12px'}" [filter]="true">
+      <ng-template pTemplate="header">
+        <div class="text-600 font-medium text-sm">Total records : {{allVariableGrpsList.length}}</div>
+      </ng-template>
+    </p-listbox>
+
+  </div>
+
+  <div class="col-12 lg:col-8 xl:col-9">
+    <!-- ; max-height: 100vh -->
+    <div class="grid">
+      <div class="col-12 lg:col-12 xl:col-6">
+        <div class="card" style="min-height: 180px">
+          <span class="block text-500 font-medium mb-3">Variable Group Details</span>
+          <div class="flex justify-content-between mb-3">
+            <div class="text-900 font-medium text-xl textOverflow">{{selectedGrpName}}</div>
+          </div>
+          <p-tag icon="pi pi-hashtag" [rounded]="true" pTooltip="Group ID" tooltipPosition="bottom" styleClass="mr-2" [value]="getGrpDetails('id', '')" severity="info"></p-tag>
+          <p-tag icon="pi pi-book" [rounded]="true" pTooltip="Description" tooltipPosition="bottom" styleClass="mt-2 mr-2" [value]="getGrpDetails('description', '')" severity="success"></p-tag>
+          <p-tag icon="pi pi-user" [rounded]="true" pTooltip="Administrator" tooltipPosition="bottom" styleClass="mt-2 mr-2" [value]="getGrpDetails('createdBy', 'displayName')" severity="warning"></p-tag>
+          <p-tag icon="pi pi-user" [rounded]="true" pTooltip="Last Modified By" tooltipPosition="bottom" styleClass="mt-2 mr-2" [value]="getGrpDetails('modifiedBy', 'displayName')"></p-tag>
+        </div>
+      </div>
+      <div class="col-12 lg:col-12 xl:col-6">
+        <div class="card" style="min-height: 180px">
+          <div class="grid">
+            <div class="col-12 xs:col-3 sm:col-3 lg:col-3 xl:col-3">
+              <span class="block text-500 font-medium mb-3">Statistics</span>
+              <div class="justify-content-between mb-2">
+                <div class="text-green-500 font-medium text-xl">Total</div>
+                <span class="text-750 font-medium text-xl"> {{variables ? variables.length : 0 }} variables</span>
+              </div>
+              <span class="text-500">{{response.secrets}} Secrets</span>
+            </div>
+            <div class="col-12 xs:col-1 sm:col-1 lg:col-1 xl:col-1">
+              <p-divider layout="vertical"></p-divider>
+            </div>
+            <div class="col-12 xs:col-4 sm:col-8 lg:col-8 xl:col-8">
+              <span class="block text-500 font-medium mb-2">Changes</span>
+              <div class="grid">
+                <div class="p-link col-6" style="align-self: end; text-align: center" *ngIf="modifiedVariables.length != 0">
+                  <!--<i class=" pi pi-inbox p-text-secondary ml-auto" pBadge style="font-size: 2rem" [value]="modifiedVariables.length.toString()" severity="danger" (click)="overlayToggle($event, op)"></i>-->
+                  <span class="material-symbols-outlined p-text-secondary ml-auto" pBadge style="font-size: 2rem" [value]="modifiedVariables.length.toString()" severity="danger" (click)="overlayToggle($event, op)">
+                    manage_history
+                  </span>
+                  <div class="text-900 font-medium text-xl">View Changes</div>
+                </div>
+                <div class="col-6"  *ngIf="modifiedVariables.length == 0">
+                  <div class="p-link" style="align-self: end; text-align: center">
+                    <!--<i class="pi pi-inbox p-text-secondary ml-auto" pBadge style="font-size: 2rem" [value]="modifiedVariables.length.toString()" severity="danger" (click)="overlayToggle($event, op)"></i>-->
+                    <!--<div class="flex align-items-center tasks-badge status-completed border-round" [ngStyle]="{width: '2.5rem', height:   '2.5rem'}">
+                      <i class="pi pi-check text-xl"></i>
+                    </div>-->
+                    <span class="material-symbols-outlined p-text-secondary ml-auto" style="font-size: 2rem">
+                      task_alt
+                    </span>
+                    <div class="text-900 font-medium text-xl">No Changes</div>
+                  </div>
+                </div>
+                <div class="col-6">
+                  <button pButton pRipple type="button" label="Discard Changes" [disabled]="!groupSelected || modifiedVariables.length == 0" (click)="clearModifiedVariable()" class="p-button-sm mb-2 p-button-outlined" style="width: -webkit-fill-available"></button>
+                  <button pButton pRipple type="button" label="Route for Approval" [disabled]="!groupSelected || modifiedVariables.length == 0" (click)="routeForApproval()" class="p-button-sm" style="width: -webkit-fill-available"></button>
+                </div>
+              </div>
+              <p-overlayPanel #op [style]="{width: '450px'}">
+                <ng-template pTemplate>
+                  <p-table [value]="modifiedVariables" responsiveLayout="scroll">
+                    <ng-template pTemplate="header">
+                      <tr>
+                        <th>Field</th>
+                        <th>Value</th>
+                      </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-mVariable>
+                      <tr>
+                        <td>Key</td>
+                        <td>{{mVariable.key}}</td>
+                      </tr>
+                      <tr>
+                        <td>Value</td>
+                        <td>{{mVariable.value}}</td>
+                      </tr>
+                      <tr>
+                        <td>Secret</td>
+                        <td>{{mVariable.secret}}</td>
+                      </tr>
+                    </ng-template>
+                  </p-table>
+                </ng-template>
+              </p-overlayPanel>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 lg:col-12 xl:col-12">
+        <div class="card">
+          <!-- VARIABLE TABLE -->
+          <p-table #dt [value]="variables" [resizableColumns]="true" [(selection)]="selectedVariables" [rowHover]="true" [scrollable]="true"
+                   scrollHeight="45vh" styleClass="p-datatable-sm"
+                   [tableStyle]="{'table-layout': 'fixed','min-width': '75rem'}"
+                   [globalFilterFields]="['key']">
+            <ng-template pTemplate="caption">
+              <div class="flex">
+                <div class="mr-2">
+                  <button pButton pRipple icon="pi pi-plus" class="p-button-success mr-2"
+                          (click)="createNew()" pTooltip="Add a variable" tooltipPosition="bottom"
+                          [disabled]="!groupSelected"></button>
+                  <button pButton pRipple icon="pi pi-trash" class="p-button-danger"
+                          (click)="deleteSelectedVariables($event)" pTooltip="Delete selected variables"
+                          tooltipPosition="bottom"
+                          [disabled]="!selectedVariables || !selectedVariables.length"></button>
+                  <p-confirmPopup key="confirm_selected_variables"></p-confirmPopup>
+                </div>
+                <div class="ml-auto">
+                  <p-fileUpload mode="basic" accept=".csv,.excel,.xlsx" pTooltip="Import" [disabled]="!groupSelected"
+                                tooltipPosition="bottom" [maxFileSize]="1000000" (click)="importExcel()" label="Import" chooseLabel="Import" class="mr-2 p-button-sm inline-block"></p-fileUpload>
+                  <button type="button" label="Export" pButton pRipple icon="pi pi-file-excel" class="p-button-success"
+                          pTooltip="XLS" tooltipPosition="bottom" (click)="exportExcel()"
+                          [disabled]="!groupSelected"></button>
+                </div>
+              </div>
+            </ng-template>
+            <ng-template pTemplate="header">
+              <tr>
+                <th style="width: 5%"><p-tableHeaderCheckbox></p-tableHeaderCheckbox></th>
+                <th style="width: 30%" pResizableColumn>Name <p-columnFilter type="text" field="key" display="menu"></p-columnFilter></th>
+                <th style="width: 90%" pResizableColumn>Value</th>
+                <th style="width: 10%">View</th>
+                <th style="width: 10%">Secret</th>
+                <th style="width: 15%"></th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-variable>
+              <tr>
+                <td>
+                  <p-tableCheckbox [value]="variable"></p-tableCheckbox>
+                </td>
+                <td class="textOverflow">
+                  {{variable.key}}
+                </td>
+                <td #variableValue class="textOverflow">{{variable.value}}</td>
+                <td>
+                  <button pButton pRipple type="button"
+                          icon="pi pi-eye" class="p-button-rounded p-button-success p-button-text"
+                          (click)="toggleEncryptedVariable($event, variableValue, variable)" [disabled]="!fetchValues(variable, 'secret')"></button>
+                </td>
+                <td>
+                  <p-checkbox [binary]="true" [ngModel]="fetchValues(variable, 'secret')"
+                              [disabled]="true"></p-checkbox>
+                </td>
+                <td class="justify-content-between">
+                  <button pButton pRipple icon="pi pi-pencil"
+                          class="p-button-rounded p-button-sm p-button-success mr-2"
+                          (click)="editVariable(variable)"></button>
+                  <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-sm p-button-warning"
+                          (click)="deleteVariable($event, variable)"></button>
+                </td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+              <tr>
+                <td colspan="6">No variables found.</td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p-dialog [(visible)]="variableDialog" [style]="{width: '450px'}" header="Variable Details" [modal]="true"
+            styleClass="p-fluid" [draggable]="false" [resizable]="false">
+    <ng-template pTemplate="content">
+      <div class="field">
+        <label for="name">Name</label>
+        <input type="text" pInputText id="name" [(ngModel)]="selectedVariable.key" required autofocus />
+        <small class="p-error" *ngIf="submitted && !selectedVariable.key">Name is required.</small>
+      </div>
+      <div class="field">
+        <label for="description">Value</label>
+        <textarea id="description" pInputTextarea [(ngModel)]="selectedVariable.value" required rows="3"
+                  cols="20"></textarea>
+      </div>
+
+      <div class="field">
+        <label class="mb-3">Severity</label>
+        <div class="formgrid grid">
+          <div class="field-radiobutton col-6">
+            <p-checkbox id="secret" [binary]="true" [(ngModel)]="selectedVariable.secret">
+            </p-checkbox>
+            <label for="secret">Secret</label>
+          </div>
+        </div>
+      </div>
+    </ng-template>
+
+    <ng-template pTemplate="footer">
+      <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text"
+              (click)="hideDialog()"></button>
+      <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text"
+              (click)="saveVariable()"></button>
+    </ng-template>
+  </p-dialog>
+
+</div>

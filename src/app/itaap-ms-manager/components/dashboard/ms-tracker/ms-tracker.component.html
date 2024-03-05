@@ -1,0 +1,51 @@
+<!--<app-header></app-header>-->
+<p-card header="Microsevice Details">
+    <p-table [value]="msData" styleClass="p-datatable-gridlines" [paginator]="true" [rows]="10" selectionMode="single">
+        <ng-template pTemplate="header">
+            <tr>
+                <th>#</th>
+                <th>Microservice</th>
+                <th>DEV</th>
+                <th>SIT</th>
+                <th>UAT</th>
+                <th>ACC</th>
+                <th>TGL</th>
+                <th>BGL</th>
+                <th>KT-Signoff</th>
+                <th>Postman Collection</th>
+                <th>ITD</th>
+                <th>ISA</th>
+                <th>Scrum Master</th>
+                <th>Tech Lead</th>
+                <th>Devloper-1</th>
+                <th>Devloper-2</th>
+                <th>Edit</th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-data>
+            <tr>
+                <td>{{data.slNo}}</td>
+                <td>{{data.ms}}</td>
+                <td>{{data.dev}}</td>
+                <td>{{data.sit}}</td>
+                <td>{{data.uat}}</td>
+                <td>{{data.acc}}</td>
+                <td>{{data.tgl}}</td>
+                <td>{{data.bgl}}</td>
+                <td>{{data.kt_signoff}}</td>
+                <td> <i class="pi pi-eye"></i></td>
+                <td> <i class="pi pi-eye"></i></td>
+                <td> 
+                    <a (click)="goToLink('https://dev.azure.com/PhilipsAgile/56.0%20GIS%20Integration/_wiki/wikis/56.0-GIS-Integration.wiki/10864/ISAD-ZCQR')">
+                        <i class="pi pi-eye"></i>
+                    </a>
+                </td>
+                <td><input pInputText type="text" [disabled]="isDisabled" value={{data.sm}}/></td>
+                <td>{{data.tl}}</td>
+                <td>{{data.d1}}</td>
+                <td>{{data.d2}}</td>
+                <td><i (click)="enableEdit($event)" [ngClass]="isEdit ? 'pi pi-save' : 'pi pi-pencil'"></i></td>
+            </tr>
+        </ng-template>
+    </p-table>
+</p-card>

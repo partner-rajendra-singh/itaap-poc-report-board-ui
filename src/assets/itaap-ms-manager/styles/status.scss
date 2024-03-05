@@ -1,0 +1,45 @@
+.tasks-badge {
+  border-radius: var(--border-radius);
+  padding: .25em .5rem;
+  text-transform: uppercase;
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: .3px;
+}
+
+.tasks-badge {
+  &.status-new {
+    background: #FEEDAF;
+    color: #8A5340;
+  }
+
+  &.status-accepted {
+    background: #ECCFFF;
+    color: #694382;
+  }
+
+  &.status-rejected {
+    background: #FFCDD2;
+    color: #C63737;
+  }
+
+  &.status-completed {
+    background: #C8E6C9;
+    color: #256029;
+  }
+
+  &.status-overdue {
+    background: #FEEDAF;
+    color: #8A5340;
+  }
+
+  &.status-inprogress {
+    background: #B3E5FC;
+    color: #23547B;
+  }
+
+  &.status-blocked {
+    background: #FFCDD2;
+    color: #C63737;
+  }
+}

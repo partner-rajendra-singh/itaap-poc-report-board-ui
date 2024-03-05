@@ -1,0 +1,81 @@
+<div class="grid">
+  <!-- <div class="col-12 pb-0">
+    <div class="text-900 font-medium text-3xl">Tasks</div>
+  </div> -->
+  <div class="col-12">
+    <div class="card p-0 grid grid-nogutter">
+      <div class="col-12 md:col-6 lg:col-3 py-5 px-6 border-none md:border-right-1 surface-border"
+        style="background: linear-gradient(226.42deg, #0F5F4B 8.93%, #09152F 110.98%);border-top-left-radius: inherit;border-bottom-left-radius: inherit;">
+        <div class="flex align-items-center justify-content-between">
+          <div class="flex align-items-center">
+            <p-avatar size="large" shape="circle" styleclass="tasks-badge status-completed" class="p-element">
+              <div class="tasks-badge status-completed p-avatar p-component p-avatar-circle p-avatar-lg">
+                <span class="material-symbols-outlined p-avatar-icon">
+                  task_alt
+                </span>
+              </div>
+            </p-avatar>
+            <span class="text-white text-xl ml-2">Completed</span>
+          </div>
+          <div class="flex align-items-center">
+            <span class="block text-white font-bold text-6xl">{{allCompletedTasks.length}}</span>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 md:col-6 lg:col-3 py-5 px-6 border-none md:border-right-1 surface-border"
+        style="background: linear-gradient(226.42deg, #1B4963 8.93%, #09152F 110.98%);">
+        <div class="flex align-items-center justify-content-between">
+          <div class="flex align-items-center">
+            <p-avatar size="large" shape="circle" styleclass="tasks-badge status-inprogress" class="p-element">
+              <div class="tasks-badge status-inprogress p-avatar p-component p-avatar-circle p-avatar-lg">
+                <span class="material-symbols-outlined p-avatar-icon">
+                  rotate_right
+                </span>
+              </div>
+            </p-avatar>
+            <span class="text text-white text-white-xl ml-2">In Progress</span>
+          </div>
+          <div class="flex align-items-center justify-content-between">
+            <span class="block text-white font-bold text-6xl">{{allInProgressTasks.length}}</span>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 md:col-6 lg:col-3 py-5 px-6 border-none md:border-right-1 surface-border"
+        style="background: linear-gradient(226.42deg, #7c4913 8.93%, #2f1b09 110.98%);">
+        <div class="flex align-items-center justify-content-between">
+          <div class="flex align-items-center">
+            <p-avatar size="large" shape="circle" styleclass="tasks-badge status-overdue" class="p-element">
+              <div class="tasks-badge status-overdue p-avatar p-component p-avatar-circle p-avatar-lg">
+                <span class="material-symbols-outlined p-avatar-icon">
+                  running_with_errors
+                </span>
+              </div>
+            </p-avatar>
+            <span class="text-xl text-white ml-2">Overdue</span>
+          </div>
+          <div class="flex align-items-center justify-content-between">
+            <span class="block text-white font-bold text-6xl">{{allOverDueTasks.length}}</span>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 md:col-6 lg:col-3 py-5 px-6"
+        style="background: linear-gradient(226.42deg, #801515 8.93%, #2F0909 110.98%);border-bottom-right-radius: inherit;border-top-right-radius: inherit;">
+        <div class="flex align-items-center justify-content-between">
+          <div class="flex align-items-center">
+            <p-avatar size="large" shape="circle" styleclass="tasks-badge status-blocked" class="p-element">
+              <div class="tasks-badge status-blocked p-avatar p-component p-avatar-circle p-avatar-lg">
+                <span class="material-symbols-outlined p-avatar-icon">
+                  block
+                </span>
+              </div>
+            </p-avatar>
+            <span class="text-xl text-white ml-2">Blocked</span>
+          </div>
+          <div class="flex align-items-center justify-content-between">
+            <span class="block text-white font-bold text-6xl">{{allBlockedTasks.length}}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

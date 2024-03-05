@@ -1,0 +1,37 @@
+<div class="layout-topbar">
+  <a class="layout-topbar-logo" routerLink="">
+    <img src="assets/itaap-ms-manager/images/login.svg" alt="logo">
+    <span>Microservice Manager</span>
+  </a>
+
+  <button #menubutton class="p-link layout-menu-button layout-topbar-button" (click)="layoutService.onMenuToggle()">
+    <i class="pi pi-bars"></i>
+  </button>
+
+  <button #topbarmenubutton class="p-link layout-topbar-menu-button layout-topbar-button"
+    (click)="layoutService.showProfileSidebar()">
+    <i class="pi pi-ellipsis-v"></i>
+  </button>
+
+  <div #topbarmenu class="layout-topbar-menu"
+    [ngClass]="{'layout-topbar-menu-mobile-active': layoutService.state.profileSidebarVisible}">
+    <div class="flex" style="align-self: center;">
+      <div class="mr-2" style="align-self: center; text-align: end">
+        <span class="font-medium text-xl">{{userName}}</span>
+        <div>{{userEmail}}</div>
+      </div>
+      <div>
+        <p-dropdown id="filterDeveloperDropdown" placeholder="User" [options]="allDevelopers" optionLabel="name"
+          [(ngModel)]="user" (onChange)="setUserId()"></p-dropdown>
+      </div>
+    </div>
+    <button class="p-link layout-topbar-button" (click)="authService.logout($event)">
+      <i class="pi pi-sign-out"></i>
+      <span>Sign Out</span>
+    </button>
+    <button class="p-link layout-topbar-button">
+      <i class="pi pi-bell"></i>
+      <span>Notifications</span>
+    </button>
+  </div>
+</div>

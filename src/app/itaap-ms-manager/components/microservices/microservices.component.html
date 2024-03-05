@@ -1,0 +1,792 @@
+<p-toast></p-toast>
+<p-toast key="success"></p-toast>
+<p-toast key="retry">
+    <ng-template let-message pTemplate="message">
+        <div class="flex flex-column" style="flex: 1">
+            <div class="text-center">
+                <i class="pi pi-exclamation-triangle" style="font-size: 3rem"></i>
+                <h4>{{message.summary}}</h4>
+                <p>{{message.detail}}</p>
+            </div>
+            <div class="grid p-fluid">
+                <div class="col-12">
+                    <button type="button" icon="pi pi-refresh" (click)="onRetry()" pButton label="Retry"
+                        class="p-button-danger"></button>
+                </div>
+            </div>
+        </div>
+    </ng-template>
+</p-toast>
+
+<div class="grid p-fluid" *ngIf="allMicroservicesList.length != 0">
+    <div class="col-12 lg:col-6 xl:col-3">
+        <p-scrollPanel [style]="{'height':'calc(100vh - 15rem)'}">
+            <div class="grid">
+                <div class="col-12">
+                    <div class="p-link task-card mb-3 p-3" (click)="populateMicroservice(ms)"
+                        *ngFor="let ms of allMicroservicesList">
+                        <div class="mb-2">
+                            <div class="text-800 text-lg textOverflow">{{ms.name}}</div>
+                        </div>
+                        <p-divider></p-divider>
+                        <div class="flex justify-content-between">
+                            <div class="flex align-items-center">
+                                <p-avatar icon="pi pi-user" styleClass="mr-2" shape="circle"></p-avatar>
+                                <div class="font-medium textOverflow" style="align-self: center;">{{ms.developer.name}}
+                                </div>
+                            </div>
+                            <div class="flex align-items-center">
+                                <span class="material-symbols-outlined text-700 mr-2">
+                                    schedule
+                                </span>
+                                <span class="textOverflow"
+                                    style="align-self: center;">{{getConvertedDate(ms.targetCompletionDate)}}</span>
+                            </div>
+                            <div class="flex align-items-center">
+                                <!-- <i class="pi pi-clock text-700 mr-2"></i> -->
+                                <span class="material-symbols-outlined text-700 mr-2">
+                                    admin_panel_settings
+                                </span>
+                                <span class="block" style="align-self: center;">{{ms.status}}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </p-scrollPanel>
+    </div>
+    <div class="col-12 lg:col-9 xl:col-9">
+        <div class="grid">
+            <div class="col-12 lg:col-12 xl:col-12 pb-0">
+                <div class="flex justify-content-between align-items-center">
+                    <span class="text-green-500 ml-2 text-3xl" style="font-weight:normal">{{selectedMs.name}}</span>
+                    <div class="flex align-items-center">
+                        <button pButton pRipple icon="pi pi-refresh" class="p-button-text mr-2"
+                            [disabled]="allMicroservicesList.length == 0" (click)="refresh()"></button>
+                        <button pButton pRipple icon="pi pi-upload" class="p-button-info mr-2"
+                            [disabled]="allMicroservicesList.length == 0" (click)="openUploadDialog()"></button>
+                        <button pButton pRipple icon="pi pi-pencil" class="p-button-info"
+                            [disabled]="allMicroservicesList.length == 0" (click)="openEditDialog()"></button>
+
+                    </div>
+                </div>
+                <p-divider></p-divider>
+            </div>
+            <div class="col-12 lg:col-5 xl:col-5">
+                <div class="grid">
+                    <div class="col-6">
+                        <div class="flex align-items-center mb-2">
+                            <p-avatar size="large" icon="pi pi-user" styleClass="mr-2" shape="circle"></p-avatar>
+                            <div>
+                                <span class="text-500">Scrum Master</span>
+                                <span class="block font-medium text-xl"
+                                    style="align-self: center;">{{selectedMs.scrumMaster.name}}</span>
+                            </div>
+                        </div>
+                        <div class="flex align-items-center mb-2">
+                            <p-avatar size="large" icon="pi pi-user" styleClass="mr-2" shape="circle"></p-avatar>
+                            <div>
+                                <span class="text-500">Point of contact</span>
+                                <span class="block font-medium text-xl"
+                                    style="align-self: center;">{{selectedMs.poc.name}}</span>
+                            </div>
+                        </div>
+                        <div class="flex align-items-center mb-2">
+                            <p-avatar size="large" shape="circle" styleclass="tasks-badge status-completed"
+                                class="p-element">
+                                <span class="material-symbols-outlined p-avatar-icon">
+                                    calendar_month
+                                </span>
+                            </p-avatar>
+                            <div class="ml-2">
+                                <span class="text-500">Target delivery date</span>
+                                <span class="block font-medium text-xl"
+                                    style="align-self: center;">{{getConvertedDate(selectedMs.targetCompletionDate)}}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="flex align-items-center mb-2">
+                            <p-avatar size="large" icon="pi pi-user" styleClass="mr-2" shape="circle"></p-avatar>
+                            <div>
+                                <span class="text-500">Tech Lead</span>
+                                <span class="block font-medium text-xl"
+                                    style="align-self: center;">{{selectedMs.techLead.name}}</span>
+                            </div>
+                        </div>
+                        <div class="flex align-items-center mb-2">
+                            <p-avatar size="large" icon="pi pi-user" styleClass="mr-2" shape="circle"></p-avatar>
+                            <div>
+                                <span class="text-500">Developer</span>
+                                <span class="block font-medium text-xl"
+                                    style="align-self: center;">{{selectedMs.developer.name}}</span>
+                            </div>
+                        </div>
+                        <div class="flex align-items-center mb-2">
+                            <p-avatar size="large" icon="pi pi-user" styleClass="mr-2" shape="circle"></p-avatar>
+                            <div>
+                                <span class="text-500">Status</span>
+                                <span class="block font-medium text-xl"
+                                    style="align-self: center;">{{selectedMs.status}}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card p-3" style="border-style: dashed;">
+                    <div class="flex justify-content-between align-items-center">
+                        <span class="text-xl font-semibold">Download documents</span>
+                        <div class="flex">
+                            <button pButton pRipple icon="pi pi-download" label="ITD"
+                                class="p-button-info p-button-text p-button-sm mr-2"
+                                [disabled]="allMicroservicesList.length == 0"
+                                (click)="downloadDocuments('ITD')"></button>
+                            <button pButton pRipple icon="pi pi-download" label="Postman Collection"
+                                class="p-button-info p-button-text p-button-sm"
+                                [disabled]="allMicroservicesList.length == 0"></button>
+                        </div>
+                    </div>
+                </div>
+                <p-divider></p-divider>
+                <div class="grid">
+                    <div class="col-12 pb-0">
+                        <span class="block font-medium text-xl text-purple-500"
+                            style="align-self: center;">Events</span>
+                    </div>
+                    <div class="col-6">
+                        <div class="flex align-items-center mb-2">
+                            <p-avatar size="large" shape="circle" styleclass="tasks-badge status-completed"
+                                class="p-element">
+                                <span class="material-symbols-outlined p-avatar-icon">
+                                    calendar_month
+                                </span>
+                            </p-avatar>
+                            <div class="ml-2">
+                                <span class="text-500">Technical Go Live</span>
+                                <span class="block font-medium text-xl"
+                                    style="align-self: center;">{{getConvertedDate(selectedMs.deployment.tgl)}}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="flex align-items-center mb-2">
+                            <p-avatar size="large" shape="circle" styleclass="tasks-badge status-completed"
+                                class="p-element">
+                                <span class="material-symbols-outlined p-avatar-icon">
+                                    calendar_month
+                                </span>
+                            </p-avatar>
+                            <div class="ml-2">
+                                <span class="text-500">Business Go Live</span>
+                                <span class="block font-medium text-xl"
+                                    style="align-self: center;">{{getConvertedDate(selectedMs.deployment.bgl)}}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 lg:col-7 xl:col-7">
+                <div class="card p-0 grid grid-nogutter">
+                    <div class="col-6 py-2 px-3 border-none md:border-right-1 align-text-center surface-border">
+                        <span class="text-l ml-2">Development</span>
+                    </div>
+                    <div class="col-6 py-2 px-3 border-none align-text-center surface-border">
+                        <span class="text-l ml-2">Test</span>
+                    </div>
+                </div>
+                <div class="p-0 grid grid-nogutter mb-3">
+                    <div class="col-6 py-2 px-3">
+                        <div class="grid">
+                            <div class="col-12 py-2 px-3">
+                                <div class="flex justify-content-center align-items-center"
+                                    *ngIf="selectedMs.deployment.deploymentDev == null">
+                                    <span>No Runs</span>
+                                </div>
+                                <div class="flex align-items-center justify-content-center"
+                                    *ngIf="selectedMs.deployment.deploymentDev != null">
+                                    <div>
+                                        <svg [class]="'mr-2 bolt bolt-status '+ selectedMs.deployment.deploymentDev.state"
+                                            height="16" role="img" viewBox="0 0 16 16" width="16"
+                                            xmlns="http://www.w3.org/2000/svg">
+                                            <path *ngIf="selectedMs.deployment.deploymentDev.state == 'failed'"
+                                                d="M10.984 5.004a.9.9 0 0 1 0 1.272L9.27 7.99l1.74 1.741a.9.9 0 1 1-1.272 1.273l-1.74-1.741-1.742 1.74a.9.9 0 1 1-1.272-1.272l1.74-1.74-1.713-1.714a.9.9 0 0 1 1.273-1.273l1.713 1.713 1.714-1.713a.9.9 0 0 1 1.273 0z"
+                                                fill="#fff">
+                                            </path>
+                                            <path *ngIf="selectedMs.deployment.deploymentDev.state == 'succeeded'"
+                                                d="M6.062 11.144l-.003-.002-1.784-1.785A.937.937 0 1 1 5.6 8.031l1.125 1.124 3.88-3.88A.937.937 0 1 1 11.931 6.6l-4.54 4.54-.004.004a.938.938 0 0 1-1.325 0z"
+                                                fill="#fff">
+                                            </path>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <div class="flex align-items-center">
+                                            <span
+                                                class="text-xl font-semibold material-symbols-outlined mr-2">tag</span>
+                                            <span
+                                                class="text-xl font-semibold">{{selectedMs.deployment.deploymentDev.buildNumber}}</span>
+                                        </div>
+                                        <div class="flex align-items-center">
+                                            <span
+                                                class="text-sm text-600 material-symbols-outlined mr-2">schedule</span>
+                                            <span
+                                                class="text-sm text-600">{{getConvertedDate(selectedMs.deployment.deploymentDev.deploymentDate)}}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 py-2 px-3">
+                        <div class="grid">
+                            <div class="col-12 py-2 px-3">
+                                <div class="flex justify-content-center align-items-center"
+                                    *ngIf="selectedMs.deployment.deploymentTest == null">
+                                    <span>No Runs</span>
+                                </div>
+                                <div class="flex align-items-center justify-content-center"
+                                    *ngIf="selectedMs.deployment.deploymentTest != null">
+                                    <div>
+                                        <svg [class]="'mr-2 bolt bolt-status '+ selectedMs.deployment.deploymentTest.state"
+                                            height="16" role="img" viewBox="0 0 16 16" width="16"
+                                            xmlns="http://www.w3.org/2000/svg">
+                                            <path *ngIf="selectedMs.deployment.deploymentTest.state == 'failed'"
+                                                d="M10.984 5.004a.9.9 0 0 1 0 1.272L9.27 7.99l1.74 1.741a.9.9 0 1 1-1.272 1.273l-1.74-1.741-1.742 1.74a.9.9 0 1 1-1.272-1.272l1.74-1.74-1.713-1.714a.9.9 0 0 1 1.273-1.273l1.713 1.713 1.714-1.713a.9.9 0 0 1 1.273 0z"
+                                                fill="#fff">
+                                            </path>
+                                            <path *ngIf="selectedMs.deployment.deploymentTest.state == 'succeeded'"
+                                                d="M6.062 11.144l-.003-.002-1.784-1.785A.937.937 0 1 1 5.6 8.031l1.125 1.124 3.88-3.88A.937.937 0 1 1 11.931 6.6l-4.54 4.54-.004.004a.938.938 0 0 1-1.325 0z"
+                                                fill="#fff">
+                                            </path>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <div class="flex align-items-center">
+                                            <span
+                                                class="text-xl font-semibold  material-symbols-outlined mr-2">tag</span>
+                                            <span
+                                                class="text-xl font-semibold ">{{selectedMs.deployment.deploymentTest.buildNumber}}</span>
+                                        </div>
+                                        <div class="flex align-items-center">
+                                            <span
+                                                class="text-sm text-600 material-symbols-outlined mr-2">schedule</span>
+                                            <span
+                                                class="text-sm text-600 ">{{getConvertedDate(selectedMs.deployment.deploymentTest.deploymentDate)}}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card p-0 grid grid-nogutter mb-0">
+                    <div class="col-6 py-2 px-3 border-none md:border-right-1 align-text-center surface-border">
+                        <span class="text-l ml-2">Acceptance</span>
+                    </div>
+                    <div class="col-6 py-2 px-3 border-none align-text-center surface-border">
+                        <span class="text-l ml-2">Production</span>
+                    </div>
+                </div>
+                <div class="p-0 grid grid-nogutter">
+
+                    <div class="col-6 px-2">
+                        <p-scrollPanel [style]="{'height':'calc(100vh - 35rem)', 'min-height':'200px'}">
+                            <ng-template pTemplate="content">
+                                <div class="grid mt-2">
+                                    <div class="col-12 py-2 px-3">
+                                        <div class="flex justify-content-center align-items-center"
+                                            *ngIf="selectedMs.deployment.deploymentAcc.length == 0">
+                                            <span>No Runs</span>
+                                        </div>
+                                        <div *ngIf="selectedMs.deployment.deploymentAcc.length != 0">
+                                            <p-accordion>
+                                                <p-accordionTab *ngFor="let acc of selectedMs.deployment.deploymentAcc">
+                                                    <ng-template pTemplate="header">
+                                                        <div class="flex justify-content-center align-items-center">
+                                                            <div>
+                                                                <svg [class]="'mr-2 bolt bolt-status '+ acc.state"
+                                                                    height="16" role="img" viewBox="0 0 16 16"
+                                                                    width="16" xmlns="http://www.w3.org/2000/svg">
+                                                                    <path *ngIf="acc.state == 'failed'"
+                                                                        d="M10.984 5.004a.9.9 0 0 1 0 1.272L9.27 7.99l1.74 1.741a.9.9 0 1 1-1.272 1.273l-1.74-1.741-1.742 1.74a.9.9 0 1 1-1.272-1.272l1.74-1.74-1.713-1.714a.9.9 0 0 1 1.273-1.273l1.713 1.713 1.714-1.713a.9.9 0 0 1 1.273 0z"
+                                                                        fill="#fff">
+                                                                    </path>
+                                                                    <path *ngIf="acc.state == 'succeeded'"
+                                                                        d="M6.062 11.144l-.003-.002-1.784-1.785A.937.937 0 1 1 5.6 8.031l1.125 1.124 3.88-3.88A.937.937 0 1 1 11.931 6.6l-4.54 4.54-.004.004a.938.938 0 0 1-1.325 0z"
+                                                                        fill="#fff">
+                                                                    </path>
+                                                                </svg>
+                                                            </div>
+                                                            <div>
+                                                                <div class="flex align-items-center">
+                                                                    <span
+                                                                        class="text-xl font-semibold  material-symbols-outlined mr-2">tag</span>
+                                                                    <span
+                                                                        class="text-xl font-semibold ">{{acc.buildNumber}}</span>
+                                                                </div>
+                                                                <div class="flex align-items-center">
+                                                                    <span
+                                                                        class="text-sm text-600 material-symbols-outlined mr-2">schedule</span>
+                                                                    <span
+                                                                        class="text-sm text-600">{{getConvertedDate(acc.deploymentDate)}}</span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </ng-template>
+                                                    <ng-template pTemplate="content">
+                                                        <div class="col-12 p-2">
+                                                            <div class="grid p-fluid">
+                                                                <div class="col-12 xs:col-12 xl:col-6 p-2">
+                                                                    <span class="font-medium text-500 text-sm">KT
+                                                                        SignOff</span>
+                                                                    <span
+                                                                        class="block font-medium">{{getConvertedDate(acc.documents.signOffKt)}}</span>
+                                                                </div>
+                                                                <div class="col-12 xs:col-12 xl:col-6 p-2">
+                                                                    <span class="font-medium text-500 text-sm">SIT
+                                                                        SignOff</span>
+                                                                    <span
+                                                                        class="block font-medium">{{getConvertedDate(acc.documents.signOffSit)}}</span>
+                                                                </div>
+                                                                <div class="col-12 xs:col-12 xl:col-6 p-2">
+                                                                    <span class="font-medium text-500 text-sm">UAT
+                                                                        SignOff</span>
+                                                                    <span
+                                                                        class="block font-medium">{{getConvertedDate(acc.documents.signOffUat)}}</span>
+                                                                </div>
+                                                                <div class="col-12 xs:col-12 xl:col-6 p-2">
+                                                                    <span class="font-medium text-500 text-sm">PT
+                                                                        SignOff</span>
+                                                                    <span
+                                                                        class="block font-medium">{{getConvertedDate(acc.documents.signOffPt)}}</span>
+                                                                </div>
+                                                                <div class="col-12 xs:col-12 xl:col-6 p-2">
+                                                                    <span class="font-medium text-500 text-sm">ST
+                                                                        SignOff</span>
+                                                                    <span
+                                                                        class="block font-medium">{{getConvertedDate(acc.documents.signOffSt)}}</span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <p-divider></p-divider>
+                                                        <div class="col-12 p-2">
+                                                            <div class="grid p-fluid mb-2">
+                                                                <div
+                                                                    class="col-12 xs:col-12 p-2 xl:col-6 flex justify-content-between align-items-center">
+                                                                    <span>IQ</span>
+                                                                    <div>
+                                                                        <span class="p-buttonset">
+                                                                            <!-- <button pButton pRipple class="p-button-text"
+                                                                        icon="pi pi-upload"></button> -->
+                                                                            <button pButton pRipple
+                                                                                class="p-button-text"
+                                                                                icon="pi pi-download"></button>
+                                                                        </span>
+                                                                    </div>
+                                                                </div>
+                                                                <div
+                                                                    class="col-12 xs:col-12 p-2 xl:col-6 flex justify-content-between align-items-center">
+                                                                    <span>Variables</span>
+                                                                    <div>
+                                                                        <span class="p-buttonset">
+                                                                            <!-- <button pButton pRipple class="p-button-text"
+                                                                        icon="pi pi-upload"></button> -->
+                                                                            <button pButton pRipple
+                                                                                class="p-button-text"
+                                                                                icon="pi pi-download"></button>
+                                                                        </span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </ng-template>
+                                                </p-accordionTab>
+                                            </p-accordion>
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </ng-template>
+                        </p-scrollPanel>
+                    </div>
+
+                    <div class="col-6 px-2">
+                        <p-scrollPanel [style]="{'height':'calc(100vh - 35rem)', 'min-height':'200px'}">
+                            <ng-template pTemplate="content">
+                                <div class="grid mt-2">
+                                    <div class="col-12 py-2 px-3">
+                                        <div class="flex justify-content-center align-items-center"
+                                            *ngIf="selectedMs.deployment.deploymentProd.length == 0">
+                                            <span>No Runs</span>
+                                        </div>
+                                        <div *ngIf="selectedMs.deployment.deploymentProd.length != 0">
+                                            <p-accordion>
+                                                <p-accordionTab
+                                                    *ngFor="let prod of selectedMs.deployment.deploymentProd">
+                                                    <ng-template pTemplate="header">
+                                                        <div class="flex justify-content-center align-items-center">
+                                                            <div>
+                                                                <svg [class]="'mr-2 bolt bolt-status '+ prod.state"
+                                                                    height="16" role="img" viewBox="0 0 16 16"
+                                                                    width="16" xmlns="http://www.w3.org/2000/svg">
+                                                                    <path *ngIf="prod.state == 'failed'"
+                                                                        d="M10.984 5.004a.9.9 0 0 1 0 1.272L9.27 7.99l1.74 1.741a.9.9 0 1 1-1.272 1.273l-1.74-1.741-1.742 1.74a.9.9 0 1 1-1.272-1.272l1.74-1.74-1.713-1.714a.9.9 0 0 1 1.273-1.273l1.713 1.713 1.714-1.713a.9.9 0 0 1 1.273 0z"
+                                                                        fill="#fff">
+                                                                    </path>
+                                                                    <path *ngIf="prod.state == 'succeeded'"
+                                                                        d="M6.062 11.144l-.003-.002-1.784-1.785A.937.937 0 1 1 5.6 8.031l1.125 1.124 3.88-3.88A.937.937 0 1 1 11.931 6.6l-4.54 4.54-.004.004a.938.938 0 0 1-1.325 0z"
+                                                                        fill="#fff">
+                                                                    </path>
+                                                                </svg>
+                                                            </div>
+                                                            <div>
+                                                                <div class="flex align-items-center">
+                                                                    <span
+                                                                        class="text-xl font-semibold  material-symbols-outlined mr-2">tag</span>
+                                                                    <span
+                                                                        class="text-xl font-semibold ">{{prod.buildNumber}}</span>
+                                                                </div>
+                                                                <div class="flex align-items-center">
+                                                                    <span
+                                                                        class="text-sm text-600 material-symbols-outlined mr-2">schedule</span>
+                                                                    <span
+                                                                        class="text-sm text-600">{{getConvertedDate(prod.deploymentDate)}}</span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </ng-template>
+                                                    <ng-template pTemplate="content">
+                                                        <div class="col-12 p-2">
+                                                            <div class="grid p-fluid">
+                                                                <div class="col-12 xs:col-12 xl:col-6 p-2">
+                                                                    <span class="font-medium text-500 text-sm">KT
+                                                                        SignOff</span>
+                                                                    <span
+                                                                        class="block font-medium">{{getConvertedDate(prod.documents.signOffKt)}}</span>
+                                                                </div>
+                                                                <div class="col-12 xs:col-12 xl:col-6 p-2">
+                                                                    <span class="font-medium text-500 text-sm">SIT
+                                                                        SignOff</span>
+                                                                    <span
+                                                                        class="block font-medium">{{getConvertedDate(prod.documents.signOffSit)}}</span>
+                                                                </div>
+                                                                <div class="col-12 xs:col-12 xl:col-6 p-2">
+                                                                    <span class="font-medium text-500 text-sm">UAT
+                                                                        SignOff</span>
+                                                                    <span
+                                                                        class="block font-medium">{{getConvertedDate(prod.documents.signOffUat)}}</span>
+                                                                </div>
+                                                                <div class="col-12 xs:col-12 xl:col-6 p-2">
+                                                                    <span class="font-medium text-500 text-sm">PT
+                                                                        SignOff</span>
+                                                                    <span
+                                                                        class="block font-medium">{{getConvertedDate(prod.documents.signOffPt)}}</span>
+                                                                </div>
+                                                                <div class="col-12 xs:col-12 xl:col-6 p-2">
+                                                                    <span class="font-medium text-500 text-sm">ST
+                                                                        SignOff</span>
+                                                                    <span
+                                                                        class="block font-medium">{{getConvertedDate(prod.documents.signOffSt)}}</span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <p-divider></p-divider>
+                                                        <div class="col-12 p-2">
+                                                            <div class="grid p-fluid mb-2">
+                                                                <div
+                                                                    class="col-12 xs:col-12 p-2 xl:col-6 flex justify-content-between align-items-center">
+                                                                    <span>PIQ</span>
+                                                                    <div>
+                                                                        <span class="p-buttonset">
+                                                                            <!-- <button pButton pRipple class="p-button-text"
+                                                                        icon="pi pi-upload"></button> -->
+                                                                            <button pButton pRipple
+                                                                                class="p-button-text"
+                                                                                icon="pi pi-download"></button>
+                                                                        </span>
+                                                                    </div>
+                                                                </div>
+                                                                <div
+                                                                    class="col-12 xs:col-12 p-2 xl:col-6 flex justify-content-between align-items-center">
+                                                                    <span>Variables</span>
+                                                                    <div>
+                                                                        <span class="p-buttonset">
+                                                                            <!-- <button pButton pRipple class="p-button-text"
+                                                                        icon="pi pi-upload"></button> -->
+                                                                            <button pButton pRipple
+                                                                                class="p-button-text"
+                                                                                icon="pi pi-download"></button>
+                                                                        </span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </ng-template>
+                                                </p-accordionTab>
+                                            </p-accordion>
+                                        </div>
+                                    </div>
+                                </div>
+                            </ng-template>
+                        </p-scrollPanel>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="grid p-fluid" *ngIf="allMicroservicesList.length == 0">
+    <div class="col-12">
+        <span class="ml-2 font-medium text-xl" style="font-weight:normal">No
+            Records</span>
+    </div>
+</div>
+
+
+<p-dialog #editMsDialog [(visible)]="editModal" [contentStyle]="{'overflow':'visible'}" [modal]="true"
+    [style]="{width: '40rem'}" [draggable]="true" [resizable]="false">
+    <ng-template pTemplate="header">
+        <div>
+            <span class="text-900 font-semibold text-xl">Edit Details</span>
+        </div>
+    </ng-template>
+    <ng-template pTemplate="content">
+        <!-- <p-progressBar mode="indeterminate" [style]="{'height': '6px'}" *ngIf="visibleProgressBar"></p-progressBar> -->
+        <div class="mt-2 grid p-fluid formgrid">
+            <div class="col-12 field">
+                <label htmlFor="msname" class="text-900 font-semibold">Microservice Name</label>
+                <p-inplace id="msname" closeIcon="pi pi-check" pTooltip="Click to edit" tooltipPosition="top"
+                    [active]="selectedMs.name == null">
+                    <ng-template pTemplate="display">
+                        {{selectedMs.name}}
+                    </ng-template>
+                    <ng-template pTemplate="content">
+                        <span class="p-input-icon-left">
+                            <i class="pi pi-pencil"></i>
+                            <input pInputText type="text" placeholder="Microservice Name"
+                                [(ngModel)]="selectedMs.name" />
+                        </span>
+
+                    </ng-template>
+                </p-inplace>
+            </div>
+            <div class="col-12 md:col-6 field">
+                <label htmlFor="techlead" class="text-900 font-semibold">Tech Lead</label>
+                <p-inplace id="techlead" closeIcon="pi pi-check" pTooltip="Click to edit" tooltipPosition="top"
+                    [active]="selectedMs.techLead == null">
+                    <ng-template pTemplate="display">
+                        <span>{{selectedMs.techLead.name}}</span>
+                    </ng-template>
+                    <ng-template pTemplate="content">
+                        <p-dropdown [options]="allTechLeads" optionLabel="name" type="text" placeholder="Tech Lead"
+                            [(ngModel)]="selectedMs.techLead"></p-dropdown>
+                    </ng-template>
+                </p-inplace>
+            </div>
+            <div class="col-12 md:col-6 field">
+                <label htmlFor="scrum" class="text-900 font-semibold">Scrum Master</label>
+                <p-inplace id="scrum" closeIcon="pi pi-check" pTooltip="Click to edit" tooltipPosition="top"
+                    [active]="selectedMs.scrumMaster == null">
+                    <ng-template pTemplate="display">
+                        <span>{{selectedMs.scrumMaster.name}}</span>
+                    </ng-template>
+                    <ng-template pTemplate="content">
+                        <p-dropdown [options]="allScrumMasters" optionLabel="name" type="text"
+                            placeholder="Scrum Master" [(ngModel)]="selectedMs.scrumMaster"></p-dropdown>
+                    </ng-template>
+                </p-inplace>
+            </div>
+            <div class="col-12 md:col-6 field">
+                <label htmlFor="dev" class="text-900 font-semibold">Primary Developer</label>
+                <p-inplace id="dev" closeIcon="pi pi-check" pTooltip="Click to edit" tooltipPosition="top"
+                    [active]="selectedMs.developer == null">
+                    <ng-template pTemplate="display">
+                        <span>{{selectedMs.developer.name}}</span>
+                    </ng-template>
+                    <ng-template pTemplate="content">
+                        <p-dropdown [options]="allDevelopers" optionLabel="name" type="text"
+                            placeholder="Primary Developer" [(ngModel)]="selectedMs.developer"></p-dropdown>
+                    </ng-template>
+                </p-inplace>
+            </div>
+            <div class="col-12 md:col-6 field">
+                <label htmlFor="backup" class="text-900 font-semibold">Backup Resource</label>
+                <p-inplace id="backup" closeIcon="pi pi-check" pTooltip="Click to edit" tooltipPosition="top"
+                    [active]="selectedMs.backup == null">
+                    <ng-template pTemplate="display">
+                        <span>{{selectedMs.backup.name}}</span>
+                    </ng-template>
+                    <ng-template pTemplate="content">
+                        <p-dropdown [options]="allDevelopers" optionLabel="name" type="text"
+                            placeholder="Backup Resource" [(ngModel)]="selectedMs.backup"></p-dropdown>
+                    </ng-template>
+                </p-inplace>
+            </div>
+            <div class="col-12 md:col-6 field">
+                <label htmlFor="poc" class="text-900 font-semibold">Point of Contact (Philips)</label>
+                <p-inplace id="poc" closeIcon="pi pi-check" pTooltip="Click to edit" tooltipPosition="top"
+                    [active]="selectedMs.poc == null">
+                    <ng-template pTemplate="display">
+                        <span>{{selectedMs.poc.name}}</span>
+                    </ng-template>
+                    <ng-template pTemplate="content">
+                        <p-dropdown [options]="allClients" optionLabel="name" type="text" placeholder="Point of Contact"
+                            [(ngModel)]="selectedMs.poc"></p-dropdown>
+                    </ng-template>
+                </p-inplace>
+            </div>
+            <div class="col-12 md:col-6 field">
+                <label htmlFor="targetDate" class="text-900 font-semibold">Target Date</label>
+                <p-inplace id="targetDate" closeIcon="pi pi-check" pTooltip="Click to edit" tooltipPosition="top"
+                    [active]="selectedMs.targetCompletionDate == null">
+                    <ng-template pTemplate="display">
+                        <span>{{getConvertedDate(selectedMs.targetCompletionDate)}}</span>
+                    </ng-template>
+                    <ng-template pTemplate="content">
+                        <p-calendar [minDate]="todayDate" dateFormat="M dd, yy" placeholder="Target Date"
+                            inputId="dateformat" [showIcon]="true"
+                            [(ngModel)]="selectedMs.targetCompletionDate"></p-calendar>
+                    </ng-template>
+                </p-inplace>
+            </div>
+            <div class="col-12 md:col-6 field">
+                <label htmlFor="targetDate" class="text-900 font-semibold">Technical Go Live</label>
+                <p-inplace id="targetDate" closeIcon="pi pi-check" pTooltip="Click to edit" tooltipPosition="top"
+                    [active]="selectedMs.deployment.tgl == null">
+                    <ng-template pTemplate="display">
+                        <span>{{getConvertedDate(selectedMs.deployment.tgl)}}</span>
+                    </ng-template>
+                    <ng-template pTemplate="content">
+                        <p-calendar [minDate]="todayDate" dateFormat="M dd, yy" placeholder="Technical Go Live"
+                            inputId="dateformat" [showIcon]="true" [(ngModel)]="selectedMs.deployment.tgl"></p-calendar>
+                    </ng-template>
+                </p-inplace>
+            </div>
+            <div class="col-12 md:col-6 field">
+                <label htmlFor="targetDate" class="text-900 font-semibold">Business Go Live</label>
+                <p-inplace id="targetDate" closeIcon="pi pi-check" pTooltip="Click to edit" tooltipPosition="top"
+                    [active]="selectedMs.deployment.bgl == null">
+                    <ng-template pTemplate="display">
+                        <span>{{getConvertedDate(selectedMs.deployment.bgl)}}</span>
+                    </ng-template>
+                    <ng-template pTemplate="content">
+                        <p-calendar [minDate]="todayDate" dateFormat="M dd, yy" placeholder="Business Go Live"
+                            inputId="dateformat" [showIcon]="true" [(ngModel)]="selectedMs.deployment.bgl"></p-calendar>
+                    </ng-template>
+                </p-inplace>
+            </div>
+            <!-- <div class="col-12 md:col-12 field"
+                *ngIf="selectedMs.deployment.deploymentAcc.length != 0 || selectedMs.deployment.deploymentProd.length != 0">
+                <label class="text-900 font-semibold">Upload Documents</label>
+                <div class="card p-3" style="border-style: dashed;">
+                    <div class="mb-2">
+                        <div class="flex align-items-center justify-content-between">
+                            <span class="mr-2">Acceptance</span>
+                            <p-button icon="pi pi-plus" pToolTip="Add new row" class="p-button-sm"></p-button>
+                        </div>
+                        <div class="flex mt-2 justify-space-between">
+                            <p-dropdown [options]="selectedMs.deployment.deploymentAcc" optionLabel="buildNumber"
+                                type="text" placeholder="Build Number"></p-dropdown>
+                        </div>
+                    </div>
+                </div>
+            </div> -->
+        </div>
+    </ng-template>
+
+    <ng-template pTemplate="footer">
+        <p-button icon="pi pi-save" (click)="onSaveEditDialog()" label="Save"></p-button>
+    </ng-template>
+</p-dialog>
+
+
+
+<p-dialog [(visible)]="uploadModal" [contentStyle]="{'overflow':'visible'}" [modal]="true" [style]="{'width': '70rem'}"
+    [draggable]="true" [resizable]="false">
+    <ng-template pTemplate="header">
+        <span class="text-900 font-semibold text-xl">Upload Documents</span>
+    </ng-template>
+    <ng-template pTemplate="content">
+        <div class="grid">
+            <div class="col-12 xl:col-6 field">
+                <div #accDiv>
+                    <div class="mb-3 flex align-items-center justify-content-between">
+                        <span class="block font-semibold">Acceptance</span>
+                        <button pButton icon="pi pi-plus" pToolTip="Add new row" class="p-button-sm"
+                            (click)="addNewRow($event, accDiv, 3)"></button>
+                    </div>
+                    <p-fileUpload [disabled]="deploymentAcc == undefined ? true : false" #fileUploaderAcc name="demo[]"
+                        [fileLimit]="6" uploadIcon="pi pi-cloud-upload" [showCancelButton]="false" [customUpload]="true"
+                        (uploadHandler)="onUpload($event, 3)" [multiple]="true" (onSelect)="onSelectFiles($event, 3)"
+                        accept=".csv,.excel,.xlsx,.doc,.docx" [maxFileSize]="1000000">
+                        <ng-template pTemplate="toolbar">
+                            <p-dropdown [options]="selectedMs.deployment.deploymentAcc" optionLabel="buildNumber"
+                                type="text" [(ngModel)]="deploymentAcc"></p-dropdown>
+                        </ng-template>
+                        <ng-template let-file pTemplate="file">
+                            <div class="flex mb-2 gap-3 align-items-center justify-content-between">
+                                <div class="textOverflow" style="width: 150px;" (pToolTip)="file.name">{{file.name}}
+                                </div>
+                                <div>{{formatBytes(file.size)}}</div>
+                                <p-dropdown [options]="documentTag" type="text" placeholder="Type" optionLabel="name"
+                                    (onChange)="file.tag = $event.value"></p-dropdown>
+                                <button pButton icon="pi pi-times" class="p-button-text"
+                                    (click)="removeFile($event, file, fileUploaderAcc)"></button>
+                            </div>
+                        </ng-template>
+                        <ng-template pTemplate="content">
+                            <!-- <div class="align-items-center">
+                                <ul *ngIf="uploadedAcc.length">
+                                    <li *ngFor="let file of uploadedAcc">{{file.name}} - {{file.size}} bytes</li>
+                                </ul>
+                            </div> -->
+                        </ng-template>
+                    </p-fileUpload>
+                </div>
+            </div>
+            <div class="col-12 xl:col-6 field">
+                <div #prodDiv>
+                    <div class="mb-3 flex align-items-center justify-content-between">
+                        <span class="block font-semibold">Production</span>
+                        <button pButton icon="pi pi-plus" pToolTip="Add new row" class="p-button-sm"
+                            (click)="addNewRow($event, prodDiv, 4)"></button>
+                    </div>
+                    <p-fileUpload [disabled]="deploymentProd == undefined ? true : false" #fileUploaderProd
+                        name="demo[]" [fileLimit]="6" uploadIcon="pi pi-cloud-upload" [showCancelButton]="false"
+                        [customUpload]="true" (uploadHandler)="onUpload($event, 3)" [multiple]="true"
+                        (onSelect)="onSelectFiles($event, 4)" accept=".csv,.excel,.xlsx,.doc,.docx"
+                        [maxFileSize]="1000000">
+                        <ng-template pTemplate="toolbar">
+                            <p-dropdown [options]="selectedMs.deployment.deploymentProd" optionLabel="buildNumber"
+                                type="text" [(ngModel)]="deploymentProd"></p-dropdown>
+                        </ng-template>
+                        <ng-template let-file pTemplate="file">
+                            <div class="flex mb-2 gap-3 align-items-center justify-content-between">
+                                <div class="textOverflow" style="width: 150px;" (pToolTip)="file.name">{{file.name}}
+                                </div>
+                                <div>{{formatBytes(file.size)}}</div>
+                                <p-dropdown [options]="documentTag" type="text" placeholder="Type" optionLabel="name"
+                                    (onChange)="file.tag = $event.value"></p-dropdown>
+                                <button pButton icon="pi pi-times" class="p-button-text"
+                                    (click)="removeFile($event, file, fileUploaderProd)"></button>
+                            </div>
+                        </ng-template>
+                        <ng-template pTemplate="content">
+                            <!-- <div class="align-items-center">
+                                <ul *ngIf="uploadedAcc.length">
+                                    <li *ngFor="let file of uploadedAcc">{{file.name}} - {{file.size}} bytes</li>
+                                </ul>
+                            </div> -->
+                        </ng-template>
+                    </p-fileUpload>
+                </div>
+            </div>
+        </div>
+    </ng-template>
+
+    <!-- <ng-template pTemplate="footer">
+        <p-button icon="pi pi-cloud-upload" (click)="onUploadDialog()" label="Upload"></p-button>
+    </ng-template> -->
+</p-dialog>
+
+<!-- <p-blockUI [target]="editMsDialog" [blocked]="blockedDialog">
+    <p-progressSpinner></p-progressSpinner>
+</p-blockUI> -->
