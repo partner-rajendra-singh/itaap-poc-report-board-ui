@@ -16,6 +16,6 @@ phases:
   post_build:
     commands:
       - echo build process finished, we should uplload to S3 now
-      - cd dist/$APP_NAME
+      - cd dist/itaap-ms-manager
       - ls -la
       - aws s3 sync . s3://poc-azure-dev-ops --delete
