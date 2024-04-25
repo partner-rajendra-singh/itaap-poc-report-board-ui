@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkitaap_ms_manager=self.webpackChunkitaap_ms_manager||[]).push([[132],{4132:(m,t,n)=>{n.r(t),n.d(t,{TodoRoutingModule:()=>o});var a=n(2386),d=n(7804),u=n(8256);const s=[{path:"",component:d.G}];class o{}o.\u0275fac=function(l){return new(l||o)},o.\u0275mod=u.oAB({type:o}),o.\u0275inj=u.cJS({imports:[a.Bz.forChild(s),a.Bz]})}}]);
