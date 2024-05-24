@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Microservices, Task, Users } from '../../api/models';
+import { Files, Microservices, Task, Users } from '../../api/models';
 import { Constants } from '../../service/constants';
 
 @Injectable({
@@ -52,6 +52,16 @@ export class TasksService {
   updateTask(modifiedTask: Task) {
     let url = this.constants.hostname + 'update/task';
     return this.httpClient.put<Task>(url, modifiedTask, this.constants.headerOptions);
+  }
+  getAllFiles() {
+    let url = this.constants.hostname + 'files/all';
+    return this.httpClient.get<Files[]>(url, this.constants.headerOptions);
+  }
+  downloadFile(fileId: number) {
+    return this.httpClient.get(this.constants.hostname + `files/download/${fileId}`, {
+      responseType: 'blob',
+      observe: 'response',
+    });
   }
 
 }

@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { ConfirmationService, MessageService } from 'primeng/api';
-import { Task } from '../../api/models';
+import { ConfirmationService, MessageService, PrimeNGConfig } from 'primeng/api';
+import { Files, Task } from '../../api/models';
 import { TasksService } from '../tasks/tasks.service';
 
 @Component({
@@ -9,6 +9,7 @@ import { TasksService } from '../tasks/tasks.service';
   providers: [MessageService, ConfirmationService]
 })
 export class DashboardComponent implements OnInit {
+  [x: string]: any;
 
   public PlatformReportData: any;
   public trackingData: any;
@@ -25,7 +26,8 @@ export class DashboardComponent implements OnInit {
   allBlockedTasks: Task[] = [];
 
   constructor(private tasksService: TasksService,
-    private messageService: MessageService) { }
+    private messageService: MessageService,
+    private config: PrimeNGConfig) { }
 
   ngOnInit(): void {
 
@@ -161,16 +163,115 @@ export class DashboardComponent implements OnInit {
 
     this.populateTasks();
     this.populateMicroservices();
+    // this.getAllFiles();
+
   }
 
-  populateTasks(){
-    this.tasksService.getTasksByStatus('C').subscribe((response) => {this.allCompletedTasks = response;},(error: any) => {console.log(error);});
-    this.tasksService.getTasksByStatus('O').subscribe((response) => {this.allOverDueTasks = response;},(error: any) => {console.log(error);});
-    this.tasksService.getTasksByStatus('B').subscribe((response) => {this.allBlockedTasks = response;},(error: any) => {console.log(error);});
-    this.tasksService.getTasksByStatus('P').subscribe((response) => {this.allInProgressTasks = response;},(error: any) => {console.log(error);});
+  populateTasks() {
+    this.tasksService.getTasksByStatus('C').subscribe((response: Task[]) => { this.allCompletedTasks = response; }, (error: any) => { console.log(error); });
+    this.tasksService.getTasksByStatus('O').subscribe((response: Task[]) => { this.allOverDueTasks = response; }, (error: any) => { console.log(error); });
+    this.tasksService.getTasksByStatus('B').subscribe((response: Task[]) => { this.allBlockedTasks = response; }, (error: any) => { console.log(error); });
+    this.tasksService.getTasksByStatus('P').subscribe((response: Task[]) => { this.allInProgressTasks = response; }, (error: any) => { console.log(error); });
   }
-  populateMicroservices(){
-    
+  populateMicroservices() {
+
+  }
+
+  getAllFiles() {
+    this.tasksService
+      .getAllFiles()
+      .subscribe(
+        (response: Files[]) => {
+          this.uploadedFiles = response;
+          console.log(response);
+        },
+        (error: any) => { console.log(error); });
+  }
+
+  downloadFile(id: number, fileName: string): void {
+    this.tasksService
+      .downloadFile(id)
+      .subscribe(
+        response => {
+          const fileNameFromUrl = "file";
+          if (fileNameFromUrl) {
+            const contentType = response.headers.get("Content-Type");
+            const blob = new Blob([response.body], { type: contentType });
+            const link = document.createElement("a");
+            link.href = window.URL.createObjectURL(blob);
+            link.download = fileName;
+
+            link.click();
+
+            window.URL.revokeObjectURL(link.href);
+            link.remove();
+          }
+          else {
+            console.log("Unable to extract file")
+          }
+        }
+      )
+
+  }
+
+  uploadedFiles: Files[] = [];
+  fileUploadUrl: string = "http://localhost:9083/poc/files//upload";
+  onUpload(event: any) {
+    event.files;
+  }
+  index: any;
+
+
+  files: any = [];
+
+  totalSize: number = 0;
+
+  totalSizePercent: number = 0;
+
+  choose(event: any, callback: any) {
+    callback();
+  }
+
+  onRemoveTemplatingFile(event: any, file: any, removeFileCallback: any, index: any) {
+    removeFileCallback(event, index);
+    this.totalSize -= parseInt(this.formatSize(file.size));
+    this.totalSizePercent = this.totalSize / 10;
+  }
+
+  onClearTemplatingUpload(clear: any) {
+    clear();
+    this.totalSize = 0;
+    this.totalSizePercent = 0;
+  }
+
+  onTemplatedUpload() {
+    this.messageService.add({ severity: 'info', summary: 'Success', detail: 'File Uploaded', life: 3000 });
+  }
+
+  onSelectedFiles(event: any) {
+    this.files = event.currentFiles;
+    this.files.forEach((file: any) => {
+      this.totalSize += parseInt(this.formatSize(file.size));
+    });
+    this.totalSizePercent = this.totalSize / 10;
+  }
+
+  uploadEvent(callback: any) {
+    callback();
+  }
+
+  formatSize(bytes: any) {
+    const k = 1024;
+    const dm = 3;
+    const sizes = this.config.translation.fileSizeTypes;
+    if (bytes === 0) {
+      return `0 ${sizes[0]}`;
+    }
+
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    const formattedSize = parseFloat((bytes / Math.pow(k, i)).toFixed(dm));
+
+    return `${formattedSize} ${sizes[i]}`;
   }
 
 }

@@ -22,7 +22,7 @@
 
 <div *ngFor="let request of allRequests">
    <p-card [style]="{width: '1510px'}" styleClass="p-card-shadow">
-    <p-tag value={{request.status}} [severity]="getSeverity(request)" [icon]="getSeverityIcon(request)"></p-tag><br><br>
+    <p-tag value={{request.status}} (severity)="getSeverity(request)" [icon]="getSeverityIcon(request)"></p-tag><br><br>
     <p>{{request.azureGroupName}}</p>
      <div>
        <p-table #dt [value]="request.modifiedVariables" [rowHover]="true" [scrollable]="true"

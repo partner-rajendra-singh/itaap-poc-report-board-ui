@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { MenuItem, MessageService, TreeNode } from 'primeng/api';
-import { Microservices, Timeline, Users } from 'src/app/itaap-ms-manager/api/models';
+import { Microservices, Timeline, Users } from '../../../api/models';
 import { AddDataService } from '../../add-data/add-data.service';
 import { TasksService } from '../../tasks/tasks.service';
 import { DeploymentService } from '../deployment.service';

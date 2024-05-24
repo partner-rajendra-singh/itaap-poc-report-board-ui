@@ -142,3 +142,10 @@ export interface Connection {
   host: string,
   port: number
 }
+
+export interface Files {
+  id: number,
+  fileName: string,
+  contentType: string,
+  data: Blob
+}

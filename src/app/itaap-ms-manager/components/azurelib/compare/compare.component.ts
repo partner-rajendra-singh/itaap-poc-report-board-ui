@@ -103,4 +103,8 @@ export class CompareComponent {
     }
   }
 
+  onRetry() {
+    this.getVariableGroups();
+    this.messageService.clear('retry');
+  }
 }

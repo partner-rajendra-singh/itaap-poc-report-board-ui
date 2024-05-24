@@ -21,7 +21,7 @@ export class Constants {
     };
 
     azureHostname: string = 'https://dev.azure.com/' + this.org + '/_apis/';
-    azureAuthorizationData = 'Basic ' + btoa("" + ':' + "vljrfdnoawhe64oe6537fistlyv562w6nz5dtlvts6mbc7okrxba");
+    azureAuthorizationData = 'Basic ' + btoa("" + ':' + "354oiuslhytd3omjgvnmhrlrmeazff365g2z63palw4djw2qwpdq");
     azureHeaderOptions = {
       headers: new HttpHeaders({
         'Content-Type': 'application/json',
